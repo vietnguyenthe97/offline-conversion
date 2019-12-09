@@ -6,9 +6,16 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+
 import org.json.JSONObject;
 
 public class DataHelper {
+	/**
+	 * Convert a map to json object
+	 * @param mapData input map type <String, Object>
+	 * @return json as String
+	 */
 	public static String convertMapToJsonString(Map<String, Object> mapData) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String jsonString = "";
@@ -20,16 +27,34 @@ public class DataHelper {
 		return jsonString;
 	}
 
+	/**
+	 * Convert json string into json object
+	 * @param jsonString
+	 * @return json object
+	 */
 	public static JSONObject convertStringToJson(String jsonString) {
-		return new JSONObject(jsonString);
+		Gson gson = new Gson();
+		JSONObject jsonObject = gson.fromJson(jsonString, JSONObject.class);
+		return jsonObject;
 	}
 
+	/**
+	 * Generate checksum using md5
+	 * @param secretKey api key
+	 * @param dataString input data
+	 * @return hashed md5 
+	 */
 	public static String generateChecksum(String secretKey, String dataString) {
 		String concatenatedString = secretKey + dataString;
 		String hashedString = md5Hash(concatenatedString);
-		return md5Hash(md5Hash(concatenatedString) + dataString);
+		return md5Hash(hashedString + dataString);
 	}
 
+	/**
+	 * md5 hashing function
+	 * @param rawString
+	 * @return md5 hashed string
+	 */
 	private static String md5Hash(String rawString) {
 		String hashedString = "";
 		try {

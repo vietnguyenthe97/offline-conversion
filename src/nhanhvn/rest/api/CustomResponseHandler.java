@@ -1,13 +1,12 @@
 package nhanhvn.rest.api;
 
-import org.apache.http.*;
+import java.io.IOException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.util.Locale;
 
 public class CustomResponseHandler {
     public static ResponseHandler<String> createResponseHandler()
