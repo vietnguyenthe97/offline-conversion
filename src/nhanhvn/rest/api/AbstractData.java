@@ -110,7 +110,6 @@ public abstract class AbstractData {
 		if(response != null) {
 			responseInJson = new JsonParser().parse(response).getAsJsonObject();
 			this.totalPages = responseInJson.get("data").getAsJsonObject().get("totalPages").getAsInt();
-			System.out.println(this.totalPages);
 		}
 
 		return responseInJson;

@@ -68,7 +68,6 @@ public class ProductDataService {
     public void getAllProducts() throws IOException {
         String data = DataHelper.convertMapToJsonString(dataMap);
         this.productData.dataPostRequest(data);
-        System.out.println(this.productData.dataPostRequest(data));
         int totalPages = this.productData.getTotalPages();
         for(int i=0; i<totalPages; i++) {
             System.out.println(">>>>>>>>>>>>>> Retrieving data from page " + (i+1) + " ...");
