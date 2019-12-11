@@ -1,5 +1,8 @@
 package nhanhvn.data.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import nhanhvn.data.helper.DataHelper;
 import nhanhvn.data.model.Product;
 import nhanhvn.data.model.Products;
@@ -36,25 +39,30 @@ public class ProductDataService {
     }
 
     public void getProducts(String pageIndex) throws IOException {
-//        Product product = new Product();
-//        dataMap.put(PAGE, pageIndex);
-//        String data = DataHelper.convertMapToJsonString(dataMap);
-//        JSONObject jsonData = productData.dataPostRequest(data);
-//        JSONObject jsonProductData = (JSONObject) jsonData.getJSONObject("data").get("products");
-//        if(jsonProductData != null) {
-//            List<Product> products = new ArrayList<Product>();
-//            //Map<String, Object> productDetail = DataHelper.convertJsonStringToMapObject(jsonProductData);
-//
-//
-//            if(this.products.getProductList().isEmpty()) {
-//               this.products.setProductList(products);
-//            } else {
-//                products.stream().forEach(productElement -> {
-//                   this.products.getProductList().add(productElement);
-//                });
-//            }
-//            System.out.println(">>>>>>>>>> Total products of page " + pageIndex + ": " + products.size());
-//        }
+        Product product = new Product();
+        dataMap.put(PAGE, pageIndex);
+        String data = DataHelper.convertMapToJsonString(dataMap);
+
+        Gson gson = new Gson();
+        JsonObject jsonData = productData.dataPostRequest(data);
+        JsonObject productJson = jsonData.get("data").getAsJsonObject().get("products").getAsJsonObject();
+        if(productJson != null) {
+            List<Product> products = new ArrayList<Product>();
+            //Map<String, Object> productDetail = DataHelper.convertJsonStringToMapObject(jsonProductData);
+            for (Map.Entry<String, JsonElement> entry : productJson.entrySet()) {
+                Product productElement = gson.fromJson(entry.getValue(), Product.class);
+                products.add(productElement);
+            }
+
+            if(this.products.getProductList().isEmpty()) {
+               this.products.setProductList(products);
+            } else {
+                products.stream().forEach(productElement -> {
+                   this.products.getProductList().add(productElement);
+                });
+            }
+            System.out.println(">>>>>>>>>> Total products of page " + pageIndex + ": " + products.size());
+        }
     }
 
     public void getAllProducts() throws IOException {
