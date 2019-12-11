@@ -1,22 +1,27 @@
 package nhanhvn.data.helper;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
+import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
+/**
+ * Class to handle strings and json objects like conversion methods, hash generator, etc.
+ */
 public class DataHelper {
 	/**
 	 * Convert a map to json object
 	 * @param mapData input map type <String, Object>
 	 * @return json as String
 	 */
-	public static String convertMapToJsonString(Map<String, Object> mapData) {
+	public static String convertMapToJsonString(Map<String, String> mapData) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String jsonString = "";
 		try {
@@ -25,17 +30,6 @@ public class DataHelper {
 			e.printStackTrace();
 		}
 		return jsonString;
-	}
-
-	/**
-	 * Convert json string into json object
-	 * @param jsonString
-	 * @return json object
-	 */
-	public static JSONObject convertStringToJson(String jsonString) {
-		Gson gson = new Gson();
-		JSONObject jsonObject = gson.fromJson(jsonString, JSONObject.class);
-		return jsonObject;
 	}
 
 	/**
@@ -70,5 +64,12 @@ public class DataHelper {
 			e.printStackTrace();
 		}
 		return hashedString;
+	}
+
+	public static Map<String, Object> convertJsonStringToMapObject(JsonObject json) throws IOException {
+		String jsonString = json.toString();
+		HashMap<String, Object> dataMap =
+				new ObjectMapper().readValue(jsonString, HashMap.class);
+		return dataMap;
 	}
 }
