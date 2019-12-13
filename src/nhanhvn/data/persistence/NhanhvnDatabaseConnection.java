@@ -1,8 +1,5 @@
 package nhanhvn.data.persistence;
 
-import nhanhvn.data.model.Product;
-import nhanhvn.data.service.ProductDataService;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import nhanhvn.data.model.Product;
+import nhanhvn.data.service.ProductDataService;
 
 public class NhanhvnDatabaseConnection {
     private Connection connection = null;

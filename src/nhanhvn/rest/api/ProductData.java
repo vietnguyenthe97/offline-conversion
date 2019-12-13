@@ -4,17 +4,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import nhanhvn.data.model.Product;
-import nhanhvn.data.model.Products;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import nhanhvn.data.helper.DataHelper;
+import nhanhvn.data.model.Product;
 
 public class ProductData extends AbstractData{
 	public ProductData() {

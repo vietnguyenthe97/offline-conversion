@@ -8,9 +8,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.google.gson.JsonObject;
-import org.json.JSONObject;
 
 /**
  * Class to handle strings and json objects like conversion methods, hash generator, etc.

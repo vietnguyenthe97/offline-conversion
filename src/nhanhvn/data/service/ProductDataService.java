@@ -1,19 +1,19 @@
 package nhanhvn.data.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import nhanhvn.data.helper.DataHelper;
-import nhanhvn.data.model.Product;
-import nhanhvn.data.model.Products;
-import nhanhvn.rest.api.ProductData;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import nhanhvn.data.helper.DataHelper;
+import nhanhvn.data.model.Product;
+import nhanhvn.data.model.Products;
+import nhanhvn.rest.api.ProductData;
 
 public class ProductDataService {
     private final String MAX_PRODUCT = "100";
@@ -39,7 +39,6 @@ public class ProductDataService {
     }
 
     public void getProducts(String pageIndex) throws IOException {
-        Product product = new Product();
         dataMap.put(PAGE, pageIndex);
         String data = DataHelper.convertMapToJsonString(dataMap);
 

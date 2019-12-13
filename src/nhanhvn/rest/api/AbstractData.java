@@ -3,12 +3,8 @@ package nhanhvn.rest.api;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -19,10 +15,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import nhanhvn.data.helper.DataHelper;
 import nhanhvn.security.apistorage.ApiCredentials;
 import nhanhvn.security.apistorage.ApiHelper;
-import org.json.JSONObject;
 
 public abstract class AbstractData {
 	 protected ApiCredentials apiCredentials;
