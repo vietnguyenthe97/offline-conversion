@@ -18,7 +18,7 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import nhanhvn.data.helper.DataHelper;
+import nhanhvn.data.helpers.DataHelper;
 import nhanhvn.security.apistorage.ApiCredentials;
 import nhanhvn.security.apistorage.ApiHelper;
 
@@ -109,7 +109,6 @@ public abstract class AbstractData {
 			responseInJson = new JsonParser().parse(response).getAsJsonObject();
 			this.totalPages = responseInJson.get("data").getAsJsonObject().get("totalPages").getAsInt();
 		}
-
 		return responseInJson;
 	}
 }

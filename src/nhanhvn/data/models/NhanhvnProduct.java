@@ -1,6 +1,6 @@
-package nhanhvn.data.model;
+package nhanhvn.data.models;
 
-public class Product {
+public class NhanhvnProduct {
     private String idNhanh;
     private String parentId;
     private String name;

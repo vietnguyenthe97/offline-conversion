@@ -1,22 +1,19 @@
 package nhanhvn.rest.api;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import nhanhvn.data.helpers.DataHelper;
+import nhanhvn.data.models.NhanhvnProducts;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import nhanhvn.data.helper.DataHelper;
-import nhanhvn.data.model.Product;
 
 public class ProductData extends AbstractData{
 	public ProductData() {
 		this.setUrl("https://graph.nhanh.vn/api/product/search");
 		this.initialize();
 	}
-
 	public static void main(String[] args) throws IOException {
 		ProductData productData = new ProductData();
 		Map<String, String> dataMap = new HashMap<String, String>();
@@ -32,14 +29,9 @@ public class ProductData extends AbstractData{
 		Gson gson = new Gson();
 		//System.out.println(object);
 
-		for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-			Product product = gson.fromJson(entry.getValue(), Product.class);
-			System.out.println(product.getIdNhanh());
-		}
+		NhanhvnProducts p = new NhanhvnProducts();
 
-
-		//System.out.println(dataFromJson);
-
-
+		System.out.println(p.getProductList().size());
+		p.getProductList().forEach(pro -> System.out.println(pro.getName()));
 	}
 }

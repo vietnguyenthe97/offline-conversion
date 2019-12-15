@@ -1,40 +1,32 @@
-package nhanhvn.data.service;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package nhanhvn.data.services;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import nhanhvn.data.helper.DataHelper;
-import nhanhvn.data.model.Product;
-import nhanhvn.data.model.Products;
+import nhanhvn.data.helpers.DataHelper;
+import nhanhvn.data.models.NhanhvnProduct;
+import nhanhvn.data.models.NhanhvnProducts;
 import nhanhvn.rest.api.ProductData;
 
-public class ProductDataService {
-    private final String MAX_PRODUCT = "100";
-    private final String ICPP = "icpp";
-    private final String PAGE = "page";
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class ProductDataService extends  AbstractService {
     private ProductData productData;
-    private Products products;
-    Map<String, String> dataMap;
+    private NhanhvnProducts products;
 
     public ProductDataService() {
         productData = new ProductData();
-        products = new Products();
-        dataMap = new HashMap<>();
-        dataMap.put(ICPP, MAX_PRODUCT);
+        products = new NhanhvnProducts();
     }
 
-    public Products getProducts() {
+    public NhanhvnProducts getProducts() {
         return products;
     }
 
-    public void setProducts(Products products) {
+    public void setProducts(NhanhvnProducts products) {
         this.products = products;
     }
 
@@ -46,10 +38,10 @@ public class ProductDataService {
         JsonObject jsonData = productData.dataPostRequest(data);
         JsonObject productJson = jsonData.get("data").getAsJsonObject().get("products").getAsJsonObject();
         if(productJson != null) {
-            List<Product> products = new ArrayList<Product>();
+            List<NhanhvnProduct> products = new ArrayList<NhanhvnProduct>();
             //Map<String, Object> productDetail = DataHelper.convertJsonStringToMapObject(jsonProductData);
             for (Map.Entry<String, JsonElement> entry : productJson.entrySet()) {
-                Product productElement = gson.fromJson(entry.getValue(), Product.class);
+                NhanhvnProduct productElement = gson.fromJson(entry.getValue(), NhanhvnProduct.class);
                 products.add(productElement);
             }
 
@@ -78,6 +70,6 @@ public class ProductDataService {
 
     public static void main(String[] args) throws IOException {
         ProductDataService service = new ProductDataService(               );
-        service.getAllProducts();
+        //service.getAllProducts();
     }
 }

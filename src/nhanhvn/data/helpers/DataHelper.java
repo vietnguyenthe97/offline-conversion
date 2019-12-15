@@ -1,14 +1,14 @@
-package nhanhvn.data.helper;
+package nhanhvn.data.helpers;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
 
 /**
  * Class to handle strings and json objects like conversion methods, hash generator, etc.
@@ -64,6 +64,12 @@ public class DataHelper {
 		return hashedString;
 	}
 
+	/**
+	 * Convert json string to java map object
+	 * @param json
+	 * @return
+	 * @throws IOException
+	 */
 	public static Map<String, Object> convertJsonStringToMapObject(JsonObject json) throws IOException {
 		String jsonString = json.toString();
 		HashMap<String, Object> dataMap =

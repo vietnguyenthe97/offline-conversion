@@ -1,14 +1,14 @@
 package gomhangvn.data.service;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.List;
 
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import gomhangvn.data.model.GomhangProduct;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -18,6 +18,13 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import gomhangvn.data.model.GomhangProducts;
 
 public class GomhangProductService {
+	private GomhangProducts gomhangProducts = new GomhangProducts();
+	private final String fileName = "gomhangProduct.csv";
+
+	public GomhangProducts getGomhangProducts() {
+		return gomhangProducts;
+	}
+
 	public int downloadGomhangProductService() {
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet("https://gomhang.vn/productid.php");
@@ -36,7 +43,6 @@ public class GomhangProductService {
 		if(entity != null) {
 			try {
 				InputStream inputStream = entity.getContent();
-				String fileName = "gomhangProduct.csv";
 				FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 				int readByte;
 				while((readByte = inputStream.read()) != -1) {
@@ -52,25 +58,37 @@ public class GomhangProductService {
 		return responseCode;
 	}
 	
-	public GomhangProducts getProductsFromCsvFile(String csvFile) {
-		GomhangProducts gomhangProducts = new GomhangProducts();
-		String line = "";
-		String splitBy = ",";
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile),"UTF8"))) {
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(splitBy);
-                System.out.println("id = " + values[0] + " , name =" + values[1] + "]");
-            }
+	public void getProductsFromCsvFile() {
+		Reader reader = null;
+		try {
+			reader = Files.newBufferedReader(Paths.get(fileName));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }		
-		return gomhangProducts;
+		CsvToBean<GomhangProduct> csvToBean = new CsvToBeanBuilder(reader)
+				.withType(GomhangProduct.class)
+				.withIgnoreLeadingWhiteSpace(true)
+				.withIgnoreQuotations(true)
+				.withSkipLines(1)
+				.build();
+
+		Iterator<GomhangProduct> csvUserIterator = csvToBean.iterator();
+		while (csvUserIterator.hasNext()) {
+			GomhangProduct gomhangProduct = csvUserIterator.next();
+			gomhangProducts.getGomhangProductList().add(gomhangProduct);
+		}
+        System.out.println("Total products added: " + gomhangProducts.getGomhangProductList().size());
 	}
 	
 	public static void main(String[] args) {
 		GomhangProductService a = new GomhangProductService();
 		a.downloadGomhangProductService();
-		a.getProductsFromCsvFile("gomhangProduct.csv");
+		a.getProductsFromCsvFile();
+		for(int i=0; i< a.getGomhangProducts().getGomhangProductList().size(); i++) {
+			System.out.println(a.getGomhangProducts().getGomhangProductList().get(i).getId());
+			System.out.println(a.getGomhangProducts().getGomhangProductList().get(i).getName());
+		}
+
 	}
 }
