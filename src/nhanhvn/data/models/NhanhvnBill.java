@@ -1,11 +1,19 @@
 package nhanhvn.data.models;
 
+import java.util.List;
+
+import com.google.gson.annotations.Expose;
+
 public class NhanhvnBill {
+	@Expose
     private String id;
+	@Expose
     private String customerName;
+	@Expose
     private String customerMobile;
+	@Expose
     private double money;
-    private NhanhvnBillProductDetail products;
+    private List<NhanhvnBillProductDetail> products;
 
     public String getId() {
         return id;
@@ -39,12 +47,12 @@ public class NhanhvnBill {
         this.money = money;
     }
 
-    public NhanhvnBillProductDetail getProducts() {
-        return products;
-    }
+	public List<NhanhvnBillProductDetail> getProducts() {
+		return products;
+	}
 
-    public void setProducts(NhanhvnBillProductDetail products) {
-        this.products = products;
-    }
+	public void setProducts(List<NhanhvnBillProductDetail> products) {
+		this.products = products;
+	}
 }
 

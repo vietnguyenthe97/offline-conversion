@@ -1,6 +1,7 @@
 package nhanhvn.data.services;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import nhanhvn.data.helpers.DataHelper;
@@ -46,20 +47,24 @@ public class BillDataService extends AbstractService {
 
         String data = DataHelper.convertMapToJsonString(dataMap);
 
-        Gson gson = new Gson();
+        Gson billGson = new GsonBuilder()
+        		.excludeFieldsWithoutExposeAnnotation()
+        		.create();
+        
         JsonObject jsonData = billData.dataPostRequest(data);
         System.out.println(jsonData);
         JsonObject billJson = jsonData.get("data").getAsJsonObject().get("bill").getAsJsonObject();
         System.out.println(billJson);
         if(billJson != null) {
             for (Map.Entry<String, JsonElement> entry : billJson.entrySet()) {
-                NhanhvnBill billElement = gson.fromJson(entry.getValue(), NhanhvnBill.class);
+                NhanhvnBill billElement = billGson.fromJson(entry.getValue(), NhanhvnBill.class);
                 JsonObject productJson = billJson.get(entry.getKey()).getAsJsonObject().get("products").getAsJsonObject();
                 for(Map.Entry<String, JsonElement> productEntry : productJson.entrySet()) {
                     NhanhvnBillProductDetail productDetailElement =
-                            gson.fromJson(productEntry.getValue(), NhanhvnBillProductDetail.class);
-                    billElement.setProducts(productDetailElement);
+                    		billGson.fromJson(productEntry.getValue(), NhanhvnBillProductDetail.class);
+                    billDetails.add(productDetailElement);
                 }
+                billElement.setProducts(billDetails);
                 bills.add(billElement);
             }
 
@@ -78,7 +83,7 @@ public class BillDataService extends AbstractService {
         BillDataService billDataService = new BillDataService();
         billDataService.getBills("1");
         billDataService.getNhanhvnBills().getNhanhvnBillList().forEach(bill -> {
-            System.out.println(bill.getId() + ", " + bill.getCustomerName() + ", " + bill.getCustomerMobile() + ", " + bill.getProducts().getName() + ", " + bill.getProducts().getQuantity());
+            System.out.println(bill.getId() + ", " + bill.getCustomerName() + ", " + bill.getCustomerMobile() + ", " + bill.getProducts().size());
         });
     }
 

@@ -66,7 +66,7 @@ public class GomhangProductService {
 			e.printStackTrace();
 		}
 
-		CsvToBean<GomhangProduct> csvToBean = new CsvToBeanBuilder(reader)
+		CsvToBean<GomhangProduct> csvToBean = new CsvToBeanBuilder<GomhangProduct>(reader)
 				.withType(GomhangProduct.class)
 				.withIgnoreLeadingWhiteSpace(true)
 				.withIgnoreQuotations(true)
