@@ -7,6 +7,9 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,5 +78,22 @@ public class DataHelper {
 		HashMap<String, Object> dataMap =
 				new ObjectMapper().readValue(jsonString, HashMap.class);
 		return dataMap;
+	}
+
+	/**
+	 *
+	 * @param dateTimeString input should be yyyy-MM-dd HH:mm:ss
+	 * @return
+	 */
+	public static Date parseDateTimeString(String dateTimeString) {
+		SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date localDateTime = null;
+		try {
+			localDateTime = dateTimeFormatter.parse(dateTimeString);
+		} catch (ParseException e) {
+			System.err.println("Wrong format input");
+			e.printStackTrace();
+		}
+		return localDateTime;
 	}
 }

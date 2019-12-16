@@ -1,8 +1,8 @@
 package nhanhvn.data.models;
 
-import java.util.List;
-
 import com.google.gson.annotations.Expose;
+
+import java.util.List;
 
 public class NhanhvnBill {
 	@Expose
@@ -13,6 +13,8 @@ public class NhanhvnBill {
     private String customerMobile;
 	@Expose
     private double money;
+	@Expose
+	private String createdDateTime;
     private List<NhanhvnBillProductDetail> products;
 
     public String getId() {
@@ -51,7 +53,15 @@ public class NhanhvnBill {
 		return products;
 	}
 
-	public void setProducts(List<NhanhvnBillProductDetail> products) {
+    public String getCreatedDateTime() {
+        return createdDateTime;
+    }
+
+    public void setCreatedDateTime(String createdDateTime) {
+        this.createdDateTime = createdDateTime;
+    }
+
+    public void setProducts(List<NhanhvnBillProductDetail> products) {
 		this.products = products;
 	}
 }

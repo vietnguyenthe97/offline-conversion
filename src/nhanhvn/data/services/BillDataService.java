@@ -49,7 +49,7 @@ public class BillDataService extends AbstractService {
 
         Gson billGson = new GsonBuilder()
         		.excludeFieldsWithoutExposeAnnotation()
-        		.create();
+                .create();
         
         JsonObject jsonData = billData.dataPostRequest(data);
         System.out.println(jsonData);
@@ -60,8 +60,11 @@ public class BillDataService extends AbstractService {
                 NhanhvnBill billElement = billGson.fromJson(entry.getValue(), NhanhvnBill.class);
                 JsonObject productJson = billJson.get(entry.getKey()).getAsJsonObject().get("products").getAsJsonObject();
                 for(Map.Entry<String, JsonElement> productEntry : productJson.entrySet()) {
+                    System.out.println(productJson.entrySet());
+                    Gson productGson = new GsonBuilder().create();
                     NhanhvnBillProductDetail productDetailElement =
-                    		billGson.fromJson(productEntry.getValue(), NhanhvnBillProductDetail.class);
+                            productGson.fromJson(productEntry.getValue(), NhanhvnBillProductDetail.class);
+                    System.out.println(productDetailElement.getQuantity());
                     billDetails.add(productDetailElement);
                 }
                 billElement.setProducts(billDetails);
@@ -82,9 +85,16 @@ public class BillDataService extends AbstractService {
     public static void main(String[] args) throws IOException {
         BillDataService billDataService = new BillDataService();
         billDataService.getBills("1");
-        billDataService.getNhanhvnBills().getNhanhvnBillList().forEach(bill -> {
-            System.out.println(bill.getId() + ", " + bill.getCustomerName() + ", " + bill.getCustomerMobile() + ", " + bill.getProducts().size());
-        });
+        NhanhvnBill bill = billDataService.getNhanhvnBills().getNhanhvnBillList().get(0);
+        System.out.println(bill.getCustomerName());
+        System.out.println(bill.getCreatedDateTime());
+        System.out.println(bill.getCustomerMobile());
+        System.out.println(bill.getId());
+        System.out.println(bill.getMoney());
+        System.out.println(bill.getProducts().get(0).getQuantity());
+        System.out.println(bill.getProducts().get(0).getId());
+        System.out.println(bill.getProducts().get(0).getName());
+        System.out.println(bill.getProducts().get(0).getPrice());
     }
 
 }
