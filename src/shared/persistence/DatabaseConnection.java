@@ -108,7 +108,8 @@ public class DatabaseConnection {
             		" createdDateTime = VALUES(createdDateTime)," +
             		" money = VALUES(money);";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            billDataService.getBills("1");
+            billDataService.getAllBills();
+            
             List<NhanhvnBill> bills = billDataService.getNhanhvnBills().getNhanhvnBillList();
             int totalChanges=0;
             for(NhanhvnBill billElement: bills) {

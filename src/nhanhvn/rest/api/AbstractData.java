@@ -27,7 +27,12 @@ public abstract class AbstractData {
 	 protected String url;
 	 protected List<NameValuePair> postParams;
 	 protected int totalPages;
+	 protected CloseableHttpClient httpClient;
 
+	public AbstractData() {
+		httpClient = HttpClients.createDefault();
+	}
+	
 	public int getTotalPages() {
 		return totalPages;
 	}
@@ -90,7 +95,6 @@ public abstract class AbstractData {
 	 */
 	public JsonObject dataPostRequest(String data)
 			throws ClientProtocolException, IOException {
-		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpPost httpPost = new HttpPost(this.getUrl());
 
 		this.addParam("data", data);

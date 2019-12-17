@@ -11,11 +11,14 @@ import nhanhvn.data.models.NhanhvnBills;
 import nhanhvn.rest.api.BillData;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class BillDataService extends AbstractService {
+	private final String FROM_DATE = "fromDate";
+	private final String TO_DATE = "toDate";
     private BillData billData;
     private NhanhvnBills nhanhvnBills;
 
@@ -82,6 +85,23 @@ public class BillDataService extends AbstractService {
         }
     }
 
+    public void getAllBills() throws IOException {
+    	LocalDate currentDate = LocalDate.now();
+    	LocalDate dateFromPrevious62Days = currentDate.minusDays(62);
+    	dataMap.put(FROM_DATE, dateFromPrevious62Days.toString());
+    	dataMap.put(TO_DATE, currentDate.toString());    	
+        String data = DataHelper.convertMapToJsonString(dataMap);
+        this.billData.dataPostRequest(data);
+        
+        int totalPages = this.billData.getTotalPages();
+        for(int i=0; i<totalPages; i++) {
+            System.out.println(">>>>>>>>>>>>>> Retrieving data from page " + (i+1) + " ...");
+            getBills("" + (i+1));
+            System.out.println(">>>>>>>>>>>>>> Finished retrieving data from page " + (i+1));
+        }
+        System.out.println("Total products: " + this.nhanhvnBills.getNhanhvnBillList().size());
+    }
+    
     public static void main(String[] args) throws IOException {
         BillDataService billDataService = new BillDataService();
         billDataService.getBills("1");
