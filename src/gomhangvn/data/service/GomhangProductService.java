@@ -1,21 +1,26 @@
 package gomhangvn.data.service;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.List;
-
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import gomhangvn.data.model.GomhangProduct;
+import gomhangvn.data.model.GomhangProducts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import shared.persistence.DatabaseConnection;
 
-import gomhangvn.data.model.GomhangProducts;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class GomhangProductService {
 	private GomhangProducts gomhangProducts = new GomhangProducts();
@@ -58,7 +63,8 @@ public class GomhangProductService {
 		return responseCode;
 	}
 	
-	public void getProductsFromCsvFile() {
+	public void getAndPersistProductsFromCsvFile() throws IOException, SQLException {
+		downloadGomhangProductService();
 		Reader reader = null;
 		try {
 			reader = Files.newBufferedReader(Paths.get(fileName));
@@ -78,13 +84,18 @@ public class GomhangProductService {
 			GomhangProduct gomhangProduct = csvUserIterator.next();
 			gomhangProducts.getGomhangProductList().add(gomhangProduct);
 		}
+
+		List<GomhangProduct> products = new ArrayList<GomhangProduct> (this.gomhangProducts.getGomhangProductList());
+		DatabaseConnection storingData = new DatabaseConnection();
+		storingData.persistGomhangvnProducts(products);
+		products.clear();
         System.out.println("Total products added: " + gomhangProducts.getGomhangProductList().size());
 	}
 	
 	public static void main(String[] args) {
 		GomhangProductService a = new GomhangProductService();
 		a.downloadGomhangProductService();
-		a.getProductsFromCsvFile();
+
 		for(int i=0; i< a.getGomhangProducts().getGomhangProductList().size(); i++) {
 			System.out.println(a.getGomhangProducts().getGomhangProductList().get(i).getId());
 			System.out.println(a.getGomhangProducts().getGomhangProductList().get(i).getName());

@@ -1,10 +1,10 @@
 package nhanhvn.rest.api;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import nhanhvn.data.helpers.DataHelper;
+import nhanhvn.security.apistorage.ApiCredentials;
+import nhanhvn.security.apistorage.ApiHelper;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -15,12 +15,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import nhanhvn.data.helpers.DataHelper;
-import nhanhvn.security.apistorage.ApiCredentials;
-import nhanhvn.security.apistorage.ApiHelper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractData {
 	 protected ApiCredentials apiCredentials;
@@ -30,7 +28,17 @@ public abstract class AbstractData {
 	 protected CloseableHttpClient httpClient;
 
 	public AbstractData() {
-		httpClient = HttpClients.createDefault();
+//		RequestConfig requestConfig = RequestConfig.custom()
+//				.setConnectionRequestTimeout(28800)
+//				.setConnectTimeout(28800)
+//				.setSocketTimeout(28800)
+//				.build();
+//		this.httpClient = HttpClients.custom()
+//				.setDefaultRequestConfig(requestConfig)
+//				//in case of NoHttpResponseException, retry sending x times
+//				.setRetryHandler(new DefaultHttpRequestRetryHandler(10, false))
+//				.build();
+		this.httpClient = HttpClients.createDefault();
 	}
 	
 	public int getTotalPages() {
@@ -113,6 +121,7 @@ public abstract class AbstractData {
 			responseInJson = new JsonParser().parse(response).getAsJsonObject();
 			this.totalPages = responseInJson.get("data").getAsJsonObject().get("totalPages").getAsInt();
 		}
+		System.out.println(postParams);
 		return responseInJson;
 	}
 }

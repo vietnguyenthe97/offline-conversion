@@ -11,5 +11,6 @@ public class AbstractService {
 
     public AbstractService() {
         dataMap = new HashMap<>();
+        dataMap.put(ICPP, MAX_PRODUCT);
     }
 }

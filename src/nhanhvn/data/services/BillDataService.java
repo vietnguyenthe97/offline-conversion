@@ -9,8 +9,10 @@ import nhanhvn.data.models.NhanhvnBill;
 import nhanhvn.data.models.NhanhvnBillProductDetail;
 import nhanhvn.data.models.NhanhvnBills;
 import nhanhvn.rest.api.BillData;
+import shared.persistence.DatabaseConnection;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +21,17 @@ import java.util.Map;
 public class BillDataService extends AbstractService {
 	private final String FROM_DATE = "fromDate";
 	private final String TO_DATE = "toDate";
+	private final String TYPE = "type";
+	private final String MODE = "mode";
     private BillData billData;
     private NhanhvnBills nhanhvnBills;
 
     public BillDataService() {
         billData = new BillData();
         nhanhvnBills = new NhanhvnBills();
+        dataMap.put(TYPE, "2");
+        dataMap.put(MODE, "1");
+        dataMap.put(MODE, "2");
     }
 
     public BillData getBillData() {
@@ -85,36 +92,31 @@ public class BillDataService extends AbstractService {
         }
     }
 
-    public void getAllBills() throws IOException {
+    public void getAndPersistAllBills() throws IOException, SQLException {
     	LocalDate currentDate = LocalDate.now();
     	LocalDate dateFromPrevious62Days = currentDate.minusDays(62);
     	dataMap.put(FROM_DATE, dateFromPrevious62Days.toString());
-    	dataMap.put(TO_DATE, currentDate.toString());    	
+    	dataMap.put(TO_DATE, currentDate.toString());
         String data = DataHelper.convertMapToJsonString(dataMap);
         this.billData.dataPostRequest(data);
         
         int totalPages = this.billData.getTotalPages();
+        System.out.println("Total pages of bills: " + totalPages);
         for(int i=0; i<totalPages; i++) {
             System.out.println(">>>>>>>>>>>>>> Retrieving data from page " + (i+1) + " ...");
             getBills("" + (i+1));
+
+            List<NhanhvnBill> bills = new ArrayList<>( this.nhanhvnBills.getNhanhvnBillList());
             System.out.println(">>>>>>>>>>>>>> Finished retrieving data from page " + (i+1));
+            DatabaseConnection storingData = new DatabaseConnection();
+            storingData.persistNhanhvnBills(bills);
+            bills.clear();
         }
         System.out.println("Total products: " + this.nhanhvnBills.getNhanhvnBillList().size());
     }
     
     public static void main(String[] args) throws IOException {
         BillDataService billDataService = new BillDataService();
-        billDataService.getBills("1");
-        NhanhvnBill bill = billDataService.getNhanhvnBills().getNhanhvnBillList().get(0);
-        System.out.println(bill.getCustomerName());
-        System.out.println(bill.getCreatedDateTime());
-        System.out.println(bill.getCustomerMobile());
-        System.out.println(bill.getId());
-        System.out.println(bill.getMoney());
-        System.out.println(bill.getProducts().get(0).getQuantity());
-        System.out.println(bill.getProducts().get(0).getId());
-        System.out.println(bill.getProducts().get(0).getName());
-        System.out.println(bill.getProducts().get(0).getPrice());
     }
 
 }

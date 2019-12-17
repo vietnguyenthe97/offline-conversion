@@ -7,8 +7,10 @@ import nhanhvn.data.helpers.DataHelper;
 import nhanhvn.data.models.NhanhvnProduct;
 import nhanhvn.data.models.NhanhvnProducts;
 import nhanhvn.rest.api.ProductData;
+import shared.persistence.DatabaseConnection;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,7 @@ public class ProductDataService extends  AbstractService {
         }
     }
 
-    public void getAllProducts() throws IOException {
+    public void getAndPersistAllProducts() throws IOException, SQLException {
         String data = DataHelper.convertMapToJsonString(dataMap);
         this.productData.dataPostRequest(data);
         int totalPages = this.productData.getTotalPages();
@@ -64,6 +66,11 @@ public class ProductDataService extends  AbstractService {
             System.out.println(">>>>>>>>>>>>>> Retrieving data from page " + (i+1) + " ...");
             getProducts("" + (i+1));
             System.out.println(">>>>>>>>>>>>>> Finished retrieving data from page " + (i+1));
+
+            List<NhanhvnProduct> products = new ArrayList<>(this.products.getProductList());
+            DatabaseConnection storingData = new DatabaseConnection();
+            storingData.persistNhanhvnProducts(products);
+            products.clear();
         }
         System.out.println("Total products: " + this.products.getProductList().size());
     }

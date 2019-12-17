@@ -3,19 +3,12 @@ package shared.persistence;
 import gomhangvn.data.model.GomhangProduct;
 import gomhangvn.data.service.GomhangProductService;
 import nhanhvn.data.models.NhanhvnBill;
-import nhanhvn.data.models.NhanhvnBills;
 import nhanhvn.data.models.NhanhvnProduct;
 import nhanhvn.data.services.BillDataService;
 import nhanhvn.data.services.ProductDataService;
-import nhanhvn.rest.api.BillData;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.sql.*;
 import java.util.List;
 
 public class DatabaseConnection {
@@ -44,7 +37,7 @@ public class DatabaseConnection {
         return connection;
     }
 
-    public void persistNhanhvnProducts(ProductDataService productDataService) throws SQLException, IOException {
+    public void persistNhanhvnProducts(List<NhanhvnProduct> products) throws SQLException, IOException {
         connection = makeDbConnection();
         if (connection != null) {
             String sqlQuery = "INSERT INTO nhanhvn_product_list (idNhanh, productName, parentId)" +
@@ -52,9 +45,6 @@ public class DatabaseConnection {
                     "ON DUPLICATE KEY UPDATE productName = VALUES(productName);";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
 
-            productDataService.getAllProducts();
-            List<NhanhvnProduct> products = new ArrayList<>();
-            products = productDataService.getProducts().getProductList();
             int totalChanges=0;
             for(NhanhvnProduct productElement: products) {
                 String idNhanh = productElement.getIdNhanh();
@@ -65,13 +55,13 @@ public class DatabaseConnection {
                 preparedStatement.setString(3, parentId);
                 totalChanges = preparedStatement.executeUpdate();
             }
-            System.out.println("================== Finished persisting nhanhvn products ==================");
+            System.out.println("================== Finished persisting nhanhvnproducts: " + products.size() + " ==================");
             System.out.println("================== Total Changes: " + totalChanges + "==================");
             connection.close();
         }
     }
 
-    public void persistGomhangvnProducts(GomhangProductService gomhangProductService) throws SQLException, IOException {
+    public void persistGomhangvnProducts(List<GomhangProduct> products) throws SQLException, IOException {
         connection = makeDbConnection();
         if (connection != null) {
             String sqlQuery = "INSERT INTO gomhangvn_product_list (id, productName)" +
@@ -79,10 +69,6 @@ public class DatabaseConnection {
                     "ON DUPLICATE KEY UPDATE productName = VALUES(productName);";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
 
-            gomhangProductService.downloadGomhangProductService();
-            gomhangProductService.getProductsFromCsvFile();
-
-            List<GomhangProduct> products = gomhangProductService.getGomhangProducts().getGomhangProductList();
             int totalChanges=0;
             for(GomhangProduct productElement: products) {
                 String id = productElement.getId();
@@ -91,13 +77,13 @@ public class DatabaseConnection {
                 preparedStatement.setString(2, name);
                 totalChanges = preparedStatement.executeUpdate();
             }
-            System.out.println("================== Finished persisting gomhang products ==================");
+            System.out.println("================== Finished persisting gomhangvnproducts: " + products.size() + " ==================");
             System.out.println("================== Total Changes: " + totalChanges + "==================");
             connection.close();
         }
     }
 
-    public void persistNhanhvnBills(BillDataService billDataService) throws SQLException, IOException {
+    public void persistNhanhvnBills(List<NhanhvnBill> bills) throws SQLException, IOException {
         connection = makeDbConnection();
         if (connection != null) {
             String sqlQuery = "INSERT INTO nhanhvn_bills (id, customerName, customerMobile, createdDateTime, money)" +
@@ -108,9 +94,7 @@ public class DatabaseConnection {
             		" createdDateTime = VALUES(createdDateTime)," +
             		" money = VALUES(money);";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-            billDataService.getAllBills();
-            
-            List<NhanhvnBill> bills = billDataService.getNhanhvnBills().getNhanhvnBillList();
+
             int totalChanges=0;
             for(NhanhvnBill billElement: bills) {
                 String id = billElement.getId();
@@ -118,7 +102,14 @@ public class DatabaseConnection {
                 String customerMobile = billElement.getCustomerMobile();
                 String createdDateTime = billElement.getCreatedDateTime();
                 double money = billElement.getMoney();
-                
+
+                if(customerName == null) {
+                    customerName = "";
+                }
+                if(customerMobile == null) {
+                    customerMobile = "";
+                }
+
                 preparedStatement.setString(1, id);
                 preparedStatement.setString(2, customerName);
                 preparedStatement.setString(3, customerMobile);
@@ -126,7 +117,7 @@ public class DatabaseConnection {
                 preparedStatement.setDouble(5, money);
                 totalChanges = preparedStatement.executeUpdate();
             }
-            System.out.println("================== Finished persisting nhanhvn bills ==================");
+            System.out.println("================== Finished persisting bills: " + bills.size() + " ==================");
             System.out.println("================== Total Changes: " + totalChanges + " ==================");
             connection.close();
         }
@@ -134,13 +125,10 @@ public class DatabaseConnection {
     
     public static void main(String[] args) throws SQLException, IOException {
         DatabaseConnection dbConn = new DatabaseConnection();
-//        ProductDataService productDataService = new ProductDataService();
-//        dbConn.persistNhanhvnProducts(productDataService);
-//
-//        GomhangProductService gomhangProductService = new GomhangProductService();
-//        dbConn.persistGomhangvnProducts(gomhangProductService);
-        
+        ProductDataService productDataService = new ProductDataService();
+
+        GomhangProductService gomhangProductService = new GomhangProductService();
+
         BillDataService billDataService = new BillDataService();
-        dbConn.persistNhanhvnBills(billDataService);
     }
 }
