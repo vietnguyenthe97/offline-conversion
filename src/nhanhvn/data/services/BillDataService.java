@@ -19,7 +19,7 @@ public class BillDataService extends AbstractService {
     private BillData billData;
     private NhanhvnBills nhanhvnBills;
 
-    BillDataService() {
+    public BillDataService() {
         billData = new BillData();
         nhanhvnBills = new NhanhvnBills();
     }
