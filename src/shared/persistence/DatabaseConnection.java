@@ -3,6 +3,7 @@ package shared.persistence;
 import gomhangvn.data.model.GomhangProduct;
 import gomhangvn.data.service.GomhangProductService;
 import nhanhvn.data.models.NhanhvnBill;
+import nhanhvn.data.models.NhanhvnBillProductDetail;
 import nhanhvn.data.models.NhanhvnProduct;
 import nhanhvn.data.services.BillDataService;
 import nhanhvn.data.services.ProductDataService;
@@ -120,15 +121,40 @@ public class DatabaseConnection {
             System.out.println("================== Finished persisting bills: " + bills.size() + " ==================");
             System.out.println("================== Total Changes: " + totalChanges + " ==================");
             connection.close();
+            
+            for(NhanhvnBill billElement: bills) {
+            	persistNhanhvnBillProductDetails(billElement);
+            }
         }
     }
-    
-    public static void main(String[] args) throws SQLException, IOException {
-        DatabaseConnection dbConn = new DatabaseConnection();
-        ProductDataService productDataService = new ProductDataService();
 
-        GomhangProductService gomhangProductService = new GomhangProductService();
+    public void persistNhanhvnBillProductDetails(NhanhvnBill bill) throws SQLException, IOException {
+        connection = makeDbConnection();
+        if (connection != null) {
+            String sqlQuery = "INSERT INTO nhanhvn_bill_details (quantity, price, billId, productId)" +
+                    "VALUES(?,?,?,?)" +
+                    "ON DUPLICATE KEY UPDATE" + 
+                    " quantity = VALUES(quantity)," + 
+                    " price = VALUES(price);";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
 
-        BillDataService billDataService = new BillDataService();
+            int totalChanges=0;
+            for(NhanhvnBillProductDetail billDetailElement: bill.getProducts()) {
+                float quantity = billDetailElement.getQuantity();
+                double price = billDetailElement.getPrice();
+            	String billId = bill.getId();
+            	String productId = billDetailElement.getId();
+            	
+                preparedStatement.setFloat(1, quantity);
+                preparedStatement.setDouble(2, price);
+                preparedStatement.setString(3, billId);
+                preparedStatement.setString(4, productId);
+                totalChanges = preparedStatement.executeUpdate();
+            }
+            System.out.println("================== Finished persisting bill details: " + bill.getProducts().size() + " ==================");
+            System.out.println("================== Total Changes: " + totalChanges + " ==================");
+            connection.close();
+        }
     }
+
 }
