@@ -12,8 +12,8 @@ public class PersistenceTest {
         GomhangProductService gomhangProductService = new GomhangProductService();
         ProductDataService productDataService = new ProductDataService();
         BillDataService billDataService = new BillDataService();
-        productDataService.getAndPersistAllProducts();
-        gomhangProductService.getAndPersistProductsFromCsvFile();
+        //productDataService.getAndPersistAllProducts();
+        //gomhangProductService.getAndPersistProductsFromCsvFile();
         billDataService.getAndPersistAllBills();
     }
 }

@@ -1,12 +1,9 @@
 package shared.persistence;
 
 import gomhangvn.data.model.GomhangProduct;
-import gomhangvn.data.service.GomhangProductService;
 import nhanhvn.data.models.NhanhvnBill;
 import nhanhvn.data.models.NhanhvnBillProductDetail;
 import nhanhvn.data.models.NhanhvnProduct;
-import nhanhvn.data.services.BillDataService;
-import nhanhvn.data.services.ProductDataService;
 
 import java.io.IOException;
 import java.sql.*;
@@ -96,7 +93,8 @@ public class DatabaseConnection {
             		" money = VALUES(money);";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
 
-            int totalChanges=0;
+            int totalProducts=0;
+            int status=0;
             for(NhanhvnBill billElement: bills) {
                 String id = billElement.getId();
                 String customerName = billElement.getCustomerName();
@@ -116,15 +114,17 @@ public class DatabaseConnection {
                 preparedStatement.setString(3, customerMobile);
                 preparedStatement.setTimestamp(4, Timestamp.valueOf(createdDateTime));
                 preparedStatement.setDouble(5, money);
-                totalChanges = preparedStatement.executeUpdate();
+                status = preparedStatement.executeUpdate();
+                totalProducts += billElement.getProducts().size();
             }
+            System.out.println("Total products in the bills:" + totalProducts);
             System.out.println("================== Finished persisting bills: " + bills.size() + " ==================");
-            System.out.println("================== Total Changes: " + totalChanges + " ==================");
+            System.out.println("================== Status: " + status + " ==================");
             connection.close();
-            
-            for(NhanhvnBill billElement: bills) {
-            	persistNhanhvnBillProductDetails(billElement);
-            }
+            //Total products in a page of bills are ~ 500k, it would take a long time (?)
+//            for(NhanhvnBill billElement: bills) {
+//            	persistNhanhvnBillProductDetails(billElement);
+//            }
         }
     }
 
