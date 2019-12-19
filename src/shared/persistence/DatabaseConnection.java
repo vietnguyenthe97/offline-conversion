@@ -121,10 +121,10 @@ public class DatabaseConnection {
             System.out.println("================== Finished persisting bills: " + bills.size() + " ==================");
             System.out.println("================== Status: " + status + " ==================");
             connection.close();
-            //Total products in a page of bills are ~ 500k, it would take a long time (?)
-//            for(NhanhvnBill billElement: bills) {
-//            	persistNhanhvnBillProductDetails(billElement);
-//            }
+            for(NhanhvnBill billElement: bills) {
+            	persistNhanhvnBillProductDetails(billElement);
+            }
+            System.out.println("Finished persisting bill details: " + totalProducts);
         }
     }
 

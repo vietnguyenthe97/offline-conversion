@@ -106,14 +106,12 @@ public class BillDataService extends AbstractService {
             System.out.println(">>>>>>>>>>>>>> Retrieving data from page " + (i+1) + " ...");
             getBills("" + (i+1));
 
-            List<NhanhvnBill> bills = new ArrayList<>(this.nhanhvnBills.getNhanhvnBillList());
+            List<NhanhvnBill> bills =  this.nhanhvnBills.getNhanhvnBillList();
             System.out.println(">>>>>>>>>>>>>> Finished retrieving data from page " + (i+1));
             DatabaseConnection storingData = new DatabaseConnection();
             storingData.persistNhanhvnBills(bills);
             bills.clear();
-            
         }
-        System.out.println("Total products: " + this.nhanhvnBills.getNhanhvnBillList().size());
     }
 
     public static void main(String[] args) throws IOException {

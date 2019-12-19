@@ -9,9 +9,11 @@ import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -28,17 +30,18 @@ public abstract class AbstractData {
 	 protected CloseableHttpClient httpClient;
 
 	public AbstractData() {
-//		RequestConfig requestConfig = RequestConfig.custom()
-//				.setConnectionRequestTimeout(28800)
-//				.setConnectTimeout(28800)
-//				.setSocketTimeout(28800)
-//				.build();
-//		this.httpClient = HttpClients.custom()
-//				.setDefaultRequestConfig(requestConfig)
-//				//in case of NoHttpResponseException, retry sending x times
-//				.setRetryHandler(new DefaultHttpRequestRetryHandler(10, false))
-//				.build();
-		this.httpClient = HttpClients.createDefault();
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectionRequestTimeout(28800)
+				.setConnectTimeout(28800)
+				.setSocketTimeout(28800)
+				.build();
+		this.httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(requestConfig)
+				.setMaxConnPerRoute(4)
+				.setMaxConnTotal(4)
+				//in case of NoHttpResponseException, retry sending x times
+				.setRetryHandler(new DefaultHttpRequestRetryHandler(10, false))
+				.build();
 	}
 	
 	public int getTotalPages() {
