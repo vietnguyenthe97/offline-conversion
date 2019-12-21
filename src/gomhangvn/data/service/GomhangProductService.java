@@ -72,24 +72,26 @@ public class GomhangProductService {
 			e.printStackTrace();
 		}
 
-		CsvToBean<GomhangProduct> csvToBean = new CsvToBeanBuilder<GomhangProduct>(reader)
-				.withType(GomhangProduct.class)
-				.withIgnoreLeadingWhiteSpace(true)
-				.withIgnoreQuotations(true)
-				.withSkipLines(1)
-				.build();
+		if(reader != null) {
+			CsvToBean<GomhangProduct> csvToBean = new CsvToBeanBuilder<GomhangProduct>(reader)
+					.withType(GomhangProduct.class)
+					.withIgnoreLeadingWhiteSpace(true)
+					.withIgnoreQuotations(true)
+					.withSkipLines(1)
+					.build();
 
-		Iterator<GomhangProduct> csvUserIterator = csvToBean.iterator();
-		while (csvUserIterator.hasNext()) {
-			GomhangProduct gomhangProduct = csvUserIterator.next();
-			gomhangProducts.getGomhangProductList().add(gomhangProduct);
+			Iterator<GomhangProduct> csvUserIterator = csvToBean.iterator();
+			while (csvUserIterator.hasNext()) {
+				GomhangProduct gomhangProduct = csvUserIterator.next();
+				gomhangProducts.getGomhangProductList().add(gomhangProduct);
+			}
+
+			List<GomhangProduct> products = new ArrayList<GomhangProduct> (this.gomhangProducts.getGomhangProductList());
+			DatabaseConnection storingData = new DatabaseConnection();
+			storingData.persistGomhangvnProducts(products);
+			products.clear();
+			System.out.println("Total products added: " + gomhangProducts.getGomhangProductList().size());
 		}
-
-		List<GomhangProduct> products = new ArrayList<GomhangProduct> (this.gomhangProducts.getGomhangProductList());
-		DatabaseConnection storingData = new DatabaseConnection();
-		storingData.persistGomhangvnProducts(products);
-		products.clear();
-        System.out.println("Total products added: " + gomhangProducts.getGomhangProductList().size());
 	}
 	
 	public static void main(String[] args) {

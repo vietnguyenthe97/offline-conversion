@@ -15,7 +15,7 @@ public class BillData extends AbstractData{
 
 	public static void main(String[] args) throws IOException {
 		BillData b = new BillData();
-		Map<String, String> dataMap = new HashMap<String, String>();
+		Map<String, Object> dataMap = new HashMap<>();
 		dataMap.put("icpp", "100");
 		dataMap.put("page", "238");
 		String data = DataHelper.convertMapToJsonString(dataMap);

@@ -7,13 +7,13 @@ import nhanhvn.security.apistorage.ApiCredentials;
 import nhanhvn.security.apistorage.ApiHelper;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Objects;
 
 public abstract class AbstractData {
-	 protected ApiCredentials apiCredentials;
-	 protected String url;
-	 protected List<NameValuePair> postParams;
-	 protected int totalPages;
-	 protected CloseableHttpClient httpClient;
-
+	protected ApiCredentials apiCredentials;
+	protected String url;
+	protected List<NameValuePair> postParams;
+	protected int totalPages;
+	protected CloseableHttpClient httpClient;
+	protected int retryTimes = 0;
 	public AbstractData() {
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setConnectionRequestTimeout(28800)
@@ -39,11 +39,9 @@ public abstract class AbstractData {
 				.setDefaultRequestConfig(requestConfig)
 				.setMaxConnPerRoute(4)
 				.setMaxConnTotal(4)
-				//in case of NoHttpResponseException, retry sending x times
-				.setRetryHandler(new DefaultHttpRequestRetryHandler(10, false))
 				.build();
 	}
-	
+
 	public int getTotalPages() {
 		return totalPages;
 	}
@@ -70,6 +68,8 @@ public abstract class AbstractData {
 	 public String getApiSecretKey() {
 	 return apiCredentials.getApiSecretKey();
 	 }
+
+	 public int getRetryTimes() { return retryTimes; }
 
 	 public void setUrl(String url) {
 	 this.url = url;
@@ -107,7 +107,6 @@ public abstract class AbstractData {
 	public JsonObject dataPostRequest(String data)
 			throws ClientProtocolException, IOException {
 		HttpPost httpPost = new HttpPost(this.getUrl());
-
 		this.addParam("data", data);
 
 		String checksum = DataHelper.generateChecksum(this.getApiSecretKey(), data);
@@ -117,14 +116,31 @@ public abstract class AbstractData {
 		httpPost.setEntity(entity);
 
 		ResponseHandler<String> responseHandler = CustomResponseHandler.createResponseHandler();
-
-		String response = httpClient.execute(httpPost, responseHandler);
+		String response = null;
 		JsonObject responseInJson = new JsonObject();
-		if(response != null) {
-			responseInJson = new JsonParser().parse(response).getAsJsonObject();
-			this.totalPages = responseInJson.get("data").getAsJsonObject().get("totalPages").getAsInt();
+
+		final int MAX_RETRY = 1000;
+		while(true) {
+			try {
+				response = httpClient.execute(httpPost, responseHandler);
+				if(response != null) {
+					responseInJson = new JsonParser().parse(response).getAsJsonObject();
+					this.totalPages = responseInJson.get("data").getAsJsonObject().get("totalPages").getAsInt();
+					System.out.println(postParams);
+				}
+				break;
+			} catch (IOException e) {
+				if(e instanceof NoHttpResponseException) {
+					retryTimes++;
+					response = httpClient.execute(httpPost, responseHandler);
+					if(retryTimes == MAX_RETRY) {
+						throw e;
+					}
+				} else {
+					throw e;
+				}
+			}
 		}
-		System.out.println(postParams);
 		return responseInJson;
 	}
 }

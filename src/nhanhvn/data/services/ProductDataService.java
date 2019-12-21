@@ -78,5 +78,6 @@ public class ProductDataService extends  AbstractService {
     public static void main(String[] args) throws IOException {
         ProductDataService service = new ProductDataService(               );
         //service.getAllProducts();
+        service.getProducts("1");
     }
 }

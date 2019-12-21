@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -22,16 +23,14 @@ public class BillDataService extends AbstractService {
 	private final String FROM_DATE = "fromDate";
 	private final String TO_DATE = "toDate";
 	private final String TYPE = "type";
-	private final String MODE = "mode";
+	private final String MODES = "modes";
     private BillData billData;
     private NhanhvnBills nhanhvnBills;
 
     public BillDataService() {
         billData = new BillData();
         nhanhvnBills = new NhanhvnBills();
-        dataMap.put(TYPE, "2");
-        dataMap.put(MODE, "1");
-        dataMap.put(MODE, "2");
+        customizeRequest();
     }
 
     public BillData getBillData() {
@@ -50,13 +49,23 @@ public class BillDataService extends AbstractService {
         this.nhanhvnBills = nhanhvnBills;
     }
 
+    public void customizeRequest() {
+        LocalDate currentDate = LocalDate.now();
+        LocalDate dateFromPrevious62Days = currentDate.minusDays(62);
+        dataMap.put(FROM_DATE, dateFromPrevious62Days.toString());
+        dataMap.put(TO_DATE, currentDate.toString());
+        dataMap.put(TYPE, "2");
+        List<String> modeList = Arrays.asList("1", "2", "5", "6", "8", "10");
+        dataMap.put(MODES, modeList);
+    }
+
     public void getBills(String pageIndex) throws IOException {
         dataMap.put(PAGE, pageIndex);
         List<NhanhvnBill> bills = new ArrayList<>();
         List<NhanhvnBillProductDetail> billDetails = new ArrayList<>();
 
         String data = DataHelper.convertMapToJsonString(dataMap);
-
+        System.out.println(data);
         Gson billGson = new GsonBuilder()
         		.excludeFieldsWithoutExposeAnnotation()
                 .create();
@@ -93,10 +102,6 @@ public class BillDataService extends AbstractService {
     }
 
     public void getAndPersistAllBills() throws IOException, SQLException {
-    	LocalDate currentDate = LocalDate.now();
-    	LocalDate dateFromPrevious62Days = currentDate.minusDays(62);
-    	dataMap.put(FROM_DATE, dateFromPrevious62Days.toString());
-    	dataMap.put(TO_DATE, currentDate.toString());
         String data = DataHelper.convertMapToJsonString(dataMap);
         this.billData.dataPostRequest(data);
         
@@ -112,10 +117,12 @@ public class BillDataService extends AbstractService {
             storingData.persistNhanhvnBills(bills);
             bills.clear();
         }
+        System.out.println("Total bills: " + this.nhanhvnBills.getNhanhvnBillList().size());
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
         BillDataService billDataService = new BillDataService();
+        billDataService.getBills("1");
     }
 
 }

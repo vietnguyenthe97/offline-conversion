@@ -22,7 +22,18 @@ public class DataHelper {
 	 * @param mapData input map type <String, Object>
 	 * @return json as String
 	 */
-	public static String convertMapToJsonString(Map<String, String> mapData) {
+	public static String convertMapToJsonString(Map<String, Object> mapData) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		String jsonString = "";
+		try {
+			jsonString = objectMapper.writeValueAsString(mapData);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return jsonString;
+	}
+
+	public static String convertMapToJsonStrings(Map<String, Object> mapData) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String jsonString = "";
 		try {
@@ -95,5 +106,8 @@ public class DataHelper {
 			e.printStackTrace();
 		}
 		return localDateTime;
+	}
+
+	public static void main(String[] args) {
 	}
 }
