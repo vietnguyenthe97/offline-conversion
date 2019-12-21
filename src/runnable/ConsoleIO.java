@@ -20,10 +20,6 @@ public class ConsoleIO {
             "2. Get & store bills from nhanhvn" + lineBreak +
             "3. Download & store products from gomhangvn";
 
-    public ConsoleIO() {
-        initializeServices();
-    }
-
     private void initializeServices() {
         billDataService = (BillDataService) ServiceFactory.createNhanhvnService("bill");
         productDataService =  (ProductDataService) ServiceFactory.createNhanhvnService("product");
@@ -47,9 +43,10 @@ public class ConsoleIO {
         int option = -1;
         Scanner input = new Scanner(System.in);
         do {
+            initializeServices();
             printMenu();
             while(true) {
-                if(input.hasNextInt()) {
+                if (input.hasNextInt()) {
                     option = input.nextInt();
                     break;
                 } else {
@@ -57,14 +54,6 @@ public class ConsoleIO {
                     System.out.println("Invalid input, make sure to enter integer number only");
                     System.out.print("Please choose another option: ");
                 }
-//                try {
-//                    option = input.nextInt();
-//                    break;
-//                } catch (InputMismatchException exception) {
-//
-//                    input.nextLine();
-//                    break;
-//                }
             }
 
             switch(option) {
