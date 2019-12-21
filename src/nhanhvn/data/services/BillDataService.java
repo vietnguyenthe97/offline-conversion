@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import nhanhvn.data.helpers.DataHelper;
+import shared.datahelper.DataHelper;
 import nhanhvn.data.models.NhanhvnBill;
 import nhanhvn.data.models.NhanhvnBillProductDetail;
 import nhanhvn.data.models.NhanhvnBills;

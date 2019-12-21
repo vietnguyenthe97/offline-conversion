@@ -2,7 +2,7 @@ package nhanhvn.rest.api;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import nhanhvn.data.helpers.DataHelper;
+import shared.datahelper.DataHelper;
 import nhanhvn.security.apistorage.ApiCredentials;
 import nhanhvn.security.apistorage.ApiHelper;
 import org.apache.http.Consts;

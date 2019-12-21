@@ -1,7 +1,7 @@
 package nhanhvn.rest.api;
 
 import com.google.gson.JsonObject;
-import nhanhvn.data.helpers.DataHelper;
+import shared.datahelper.DataHelper;
 
 import java.io.IOException;
 import java.util.HashMap;

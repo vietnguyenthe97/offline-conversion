@@ -1,10 +1,11 @@
-package nhanhvn.data.helpers;
+package shared.datahelper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -108,6 +109,36 @@ public class DataHelper {
 		return localDateTime;
 	}
 
-	public static void main(String[] args) {
+	/**
+	 * https://www.baeldung.com/sha-256-hashing-java
+	 * @param rawString
+	 * @return
+	 */
+	public static String SHA256Hash(String rawString) throws NoSuchAlgorithmException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		byte[] encodedhash = digest.digest(
+				rawString.getBytes(StandardCharsets.UTF_8));
+		return bytesToHex(encodedhash);
+	}
+
+	private static String bytesToHex(byte[] hash) {
+		StringBuffer hexString = new StringBuffer();
+		for (int i = 0; i < hash.length; i++) {
+			String hex = Integer.toHexString(0xff & hash[i]);
+			if(hex.length() == 1) hexString.append('0');
+			hexString.append(hex);
+		}
+		return hexString.toString();
+	}
+
+	public static String formatMobileNumber(String phoneNumber) {
+		return "84" + phoneNumber
+			.replaceFirst("^0+(?!$)", "")
+			.replaceAll("[^0-9]", "");
+	}
+
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		System.out.println(DataHelper.SHA256Hash("ccacacacac"));
+		System.out.println(DataHelper.formatMobileNumber("        0000000000945803932      "));
 	}
 }

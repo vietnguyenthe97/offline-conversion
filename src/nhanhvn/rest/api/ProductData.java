@@ -2,7 +2,7 @@ package nhanhvn.rest.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import nhanhvn.data.helpers.DataHelper;
+import shared.datahelper.DataHelper;
 import nhanhvn.data.models.NhanhvnProducts;
 
 import java.io.IOException;
