@@ -18,7 +18,8 @@ public class ConsoleIO {
             "0. Exit the program" + lineBreak +
             "1. Get & store products from nhanhvn" + lineBreak +
             "2. Get & store bills from nhanhvn" + lineBreak +
-            "3. Download & store products from gomhangvn";
+            "3. Download & store products from gomhangvn" + lineBreak +
+            "4. Store facebookId for nhanhvn products";
 
     private void initializeServices() {
         billDataService = (BillDataService) ServiceFactory.createNhanhvnService("bill");
@@ -81,7 +82,9 @@ public class ConsoleIO {
                 }
 
                 case 4: {
-
+                    productDataService.updateFacebookId();
+                    printDone();
+                    break;
                 }
 
                 default: {
