@@ -2,21 +2,15 @@ package nhanhvn.data.models;
 
 import com.opencsv.bean.CsvBindByPosition;
 
-public class NhanhvnProduct {
+public class IdConversionObject {
+    @CsvBindByPosition(position = 0)
     private String idNhanh;
+
+    @CsvBindByPosition(position = 1)
     private String parentId;
-    private String name;
 
     @CsvBindByPosition(position = 3)
-    private transient String facebookId;
-
-    public String getIdNhanh() {
-        return idNhanh;
-    }
-
-    public void setIdNhanh(String idNhanh) {
-        this.idNhanh = idNhanh;
-    }
+    private String facebookId;
 
     public String getParentId() {
         return parentId;
@@ -26,12 +20,12 @@ public class NhanhvnProduct {
         this.parentId = parentId;
     }
 
-    public String getName() {
-        return name;
+    public String getIdNhanh() {
+        return idNhanh;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdNhanh(String idNhanh) {
+        this.idNhanh = idNhanh;
     }
 
     public String getFacebookId() {

@@ -30,7 +30,7 @@ public class GomhangProductService {
 		return gomhangProducts;
 	}
 
-	public int downloadGomhangProductService() {
+	public void downloadGomhangProductService() {
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet("https://gomhang.vn/productid.php");
 		HttpResponse response;
@@ -44,13 +44,13 @@ public class GomhangProductService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		if(entity != null) {
+
+		if (entity != null) {
 			try {
 				InputStream inputStream = entity.getContent();
 				FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 				int readByte;
-				while((readByte = inputStream.read()) != -1) {
+				while ((readByte = inputStream.read()) != -1) {
 					fileOutputStream.write(readByte);
 				}
 				fileOutputStream.close();
@@ -60,9 +60,8 @@ public class GomhangProductService {
 				e.printStackTrace();
 			}
 		}
-		return responseCode;
 	}
-	
+
 	public void getAndPersistProductsFromCsvFile() throws IOException, SQLException {
 		downloadGomhangProductService();
 		Reader reader = null;
@@ -72,7 +71,7 @@ public class GomhangProductService {
 			e.printStackTrace();
 		}
 
-		if(reader != null) {
+		if (reader != null) {
 			CsvToBean<GomhangProduct> csvToBean = new CsvToBeanBuilder<GomhangProduct>(reader)
 					.withType(GomhangProduct.class)
 					.withIgnoreLeadingWhiteSpace(true)
@@ -86,22 +85,12 @@ public class GomhangProductService {
 				gomhangProducts.getGomhangProductList().add(gomhangProduct);
 			}
 
-			List<GomhangProduct> products = new ArrayList<GomhangProduct> (this.gomhangProducts.getGomhangProductList());
+			List<GomhangProduct> products = new ArrayList<GomhangProduct>(this.gomhangProducts.getGomhangProductList());
 			DatabaseConnection storingData = new DatabaseConnection();
 			storingData.persistGomhangvnProducts(products);
 			products.clear();
 			System.out.println("Total products added: " + gomhangProducts.getGomhangProductList().size());
 		}
 	}
-	
-	public static void main(String[] args) {
-		GomhangProductService a = new GomhangProductService();
-		a.downloadGomhangProductService();
-
-		for(int i=0; i< a.getGomhangProducts().getGomhangProductList().size(); i++) {
-			System.out.println(a.getGomhangProducts().getGomhangProductList().get(i).getId());
-			System.out.println(a.getGomhangProducts().getGomhangProductList().get(i).getName());
-		}
-
-	}
 }
+

@@ -1,9 +1,7 @@
 package shared.persistence;
 
 import gomhangvn.data.model.GomhangProduct;
-import nhanhvn.data.models.NhanhvnBill;
-import nhanhvn.data.models.NhanhvnBillProductDetail;
-import nhanhvn.data.models.NhanhvnProduct;
+import nhanhvn.data.models.*;
 
 import java.io.IOException;
 import java.sql.*;
@@ -35,7 +33,7 @@ public class DatabaseConnection {
         return connection;
     }
 
-    public void persistNhanhvnProducts(List<NhanhvnProduct> products) throws SQLException, IOException {
+    public void persistNhanhvnProducts(List<NhanhvnProduct> products) throws SQLException {
         connection = makeDbConnection();
         if (connection != null) {
             String sqlQuery = "INSERT INTO nhanhvn_product_list (idNhanh, productName, parentId)" +
@@ -59,7 +57,7 @@ public class DatabaseConnection {
         }
     }
 
-    public void persistGomhangvnProducts(List<GomhangProduct> products) throws SQLException, IOException {
+    public void persistGomhangvnProducts(List<GomhangProduct> products) throws SQLException {
         connection = makeDbConnection();
         if (connection != null) {
             String sqlQuery = "INSERT INTO gomhangvn_product_list (id, productName)" +
@@ -128,7 +126,7 @@ public class DatabaseConnection {
         }
     }
 
-    public void persistNhanhvnBillProductDetails(NhanhvnBill bill) throws SQLException, IOException {
+    public void persistNhanhvnBillProductDetails(NhanhvnBill bill) throws SQLException {
         connection = makeDbConnection();
         if (connection != null) {
             String sqlQuery = "INSERT INTO nhanhvn_bill_details (quantity, price, billId, productId)" +
@@ -157,4 +155,39 @@ public class DatabaseConnection {
         }
     }
 
+    public void persistFacebookId(IdConversionObject idConversionObject) throws SQLException {
+        connection = makeDbConnection();
+        if(connection != null) {
+            String facebookIdFromCsv = idConversionObject.getFacebookId();
+            String idNhanhFromCsv = idConversionObject.getIdNhanh();
+            String parentIdFromCsv = idConversionObject.getParentId();
+            int parentIdValue, facebookIdValue, status = 0;
+            if(!parentIdFromCsv.isEmpty()) {
+                try {
+                    parentIdValue = Integer.parseInt(parentIdFromCsv);
+                    if (parentIdValue < 0 && !facebookIdFromCsv.isEmpty()) {
+                        facebookIdValue = Integer.parseInt(facebookIdFromCsv);
+                        if (facebookIdValue > 0) {
+                            String sqlQuery = "UPDATE nhanhvn_product_list" +
+                                    " SET facebookId = ?" +
+                                    " WHERE idNhanh = ?" +
+                                    " OR parentId = ?;";
+                            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+                            preparedStatement.setString(1, facebookIdFromCsv);
+                            preparedStatement.setString(2, idNhanhFromCsv);
+                            preparedStatement.setString(3, idNhanhFromCsv);
+                            status = preparedStatement.executeUpdate();
+                        }
+                    }
+                } catch(NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+            connection.close();
+            System.out.println("================== Finished updating facebookId for nhanhId: " + idNhanhFromCsv);
+            System.out.println("Update status: " + status);
+        }
+    }
 }
+
+

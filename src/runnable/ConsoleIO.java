@@ -80,6 +80,10 @@ public class ConsoleIO {
                     break;
                 }
 
+                case 4: {
+
+                }
+
                 default: {
                     printUnsupportedService();
                     break;

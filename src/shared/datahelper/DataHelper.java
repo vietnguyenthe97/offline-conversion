@@ -87,8 +87,7 @@ public class DataHelper {
 	 */
 	public static Map<String, Object> convertJsonStringToMapObject(JsonObject json) throws IOException {
 		String jsonString = json.toString();
-		HashMap<String, Object> dataMap =
-				new ObjectMapper().readValue(jsonString, HashMap.class);
+		HashMap<String, Object> dataMap = new ObjectMapper().readValue(jsonString, HashMap.class);
 		return dataMap;
 	}
 

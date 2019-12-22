@@ -3,25 +3,36 @@ package nhanhvn.data.services;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import shared.datahelper.DataHelper;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import nhanhvn.data.models.IdConversionObject;
+import nhanhvn.data.models.IdConversionObjects;
 import nhanhvn.data.models.NhanhvnProduct;
 import nhanhvn.data.models.NhanhvnProducts;
 import nhanhvn.rest.api.ProductData;
+import shared.datahelper.DataHelper;
 import shared.persistence.DatabaseConnection;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class ProductDataService extends  AbstractService {
     private ProductData productData;
     private NhanhvnProducts products;
+    private IdConversionObjects idConversionObjects;
+
 
     public ProductDataService() {
         productData = new ProductData();
         products = new NhanhvnProducts();
+        idConversionObjects = new IdConversionObjects();
     }
 
     public NhanhvnProducts getProducts() {
@@ -75,9 +86,33 @@ public class ProductDataService extends  AbstractService {
         System.out.println("Total products: " + this.products.getProductList().size());
     }
 
-    public static void main(String[] args) throws IOException {
+    public void updateFacebookId() throws SQLException {
+        Reader reader = null;
+        try {
+            reader = Files.newBufferedReader(Paths.get("resources/facebookid_mapping_sheet.csv"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(reader != null) {
+            CsvToBean<IdConversionObject> csvToBean = new CsvToBeanBuilder<IdConversionObject>(reader)
+                    .withType(IdConversionObject.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .withSeparator(',')
+                    .withSkipLines(1)
+                    .build();
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            Iterator<IdConversionObject> csvUserIterator = csvToBean.iterator();
+            while (csvUserIterator.hasNext()) {
+                IdConversionObject idConversionObject = csvUserIterator.next();
+                databaseConnection.persistFacebookId(idConversionObject);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IOException, SQLException {
         ProductDataService service = new ProductDataService(               );
         //service.getAllProducts();
-        service.getProducts("1");
+        service.updateFacebookId();
     }
 }
