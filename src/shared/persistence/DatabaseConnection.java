@@ -1,5 +1,7 @@
 package shared.persistence;
 
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import gomhangvn.data.model.GomhangProduct;
 import nhanhvn.data.models.*;
 
@@ -187,6 +189,34 @@ public class DatabaseConnection {
             System.out.println("================== Finished updating facebookId for nhanhId: " + idNhanhFromCsv);
             System.out.println("Update status: " + status);
         }
+    }
+
+    public NhanhvnProducts retrieveDataFromNhanhvnProduct() throws SQLException {
+        NhanhvnProducts nhanhvnProducts = new NhanhvnProducts();
+        connection = makeDbConnection();
+        if (connection != null) {
+
+        }
+        Statement st = connection.createStatement();
+        ResultSet resultSet = st.executeQuery("SELECT * FROM  nhanhvn_product_list");
+        while (resultSet.next()) {
+            NhanhvnProduct nhanhvnProduct = new NhanhvnProduct();
+            String name = resultSet.getString("productName");
+            String idNhanh = resultSet.getString("idNhanh");
+            String facebookId = resultSet.getString("facebookId");
+            String parentId = resultSet.getString("parentId");
+
+            nhanhvnProduct.setName(name);
+            nhanhvnProduct.setIdNhanh(idNhanh);
+            nhanhvnProduct.setFacebookId(facebookId);
+            nhanhvnProduct.setParentId(parentId);
+            nhanhvnProducts.getProductList().add(nhanhvnProduct);
+        }
+        connection.close();
+        return nhanhvnProducts;
+    }
+
+    public static void main(String[] args) throws SQLException, CsvRequiredFieldEmptyException, IOException, CsvDataTypeMismatchException {
     }
 }
 
