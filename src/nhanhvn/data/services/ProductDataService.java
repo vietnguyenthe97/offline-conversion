@@ -1,18 +1,5 @@
 package nhanhvn.data.services;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
-import nhanhvn.data.models.IdConversionObject;
-import nhanhvn.data.models.IdConversionObjects;
-import nhanhvn.data.models.NhanhvnProduct;
-import nhanhvn.data.models.NhanhvnProducts;
-import nhanhvn.rest.api.ProductData;
-import shared.datahelper.DataHelper;
-import shared.persistence.DatabaseConnection;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -23,16 +10,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+
+import nhanhvn.data.models.IdConversionObject;
+import nhanhvn.data.models.NhanhvnProduct;
+import nhanhvn.data.models.NhanhvnProducts;
+import nhanhvn.rest.api.ProductData;
+import shared.datahelper.DataHelper;
+import shared.persistence.DatabaseConnection;
+
 public class ProductDataService extends  AbstractService {
     private ProductData productData;
     private NhanhvnProducts products;
-    private IdConversionObjects idConversionObjects;
-
 
     public ProductDataService() {
         productData = new ProductData();
         products = new NhanhvnProducts();
-        idConversionObjects = new IdConversionObjects();
     }
 
     public NhanhvnProducts getProducts() {
@@ -47,7 +45,9 @@ public class ProductDataService extends  AbstractService {
         dataMap.put(PAGE, pageIndex);
         String data = DataHelper.convertMapToJsonString(dataMap);
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+        		.excludeFieldsWithoutExposeAnnotation()
+        		.create();
         JsonObject jsonData = productData.dataPostRequest(data);
         JsonObject productJson = jsonData.get("data").getAsJsonObject().get("products").getAsJsonObject();
         if(productJson != null) {

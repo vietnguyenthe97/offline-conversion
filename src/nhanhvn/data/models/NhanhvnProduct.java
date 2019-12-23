@@ -1,12 +1,19 @@
 package nhanhvn.data.models;
 
+import com.google.gson.annotations.Expose;
 import com.opencsv.bean.CsvBindByPosition;
 
 public class NhanhvnProduct {
+	@Expose
     private String idNhanh;
+	
+	@Expose
     private String parentId;
+	
+	@Expose
     private String name;
 
+	@Expose(serialize = true, deserialize = false)
     @CsvBindByPosition(position = 3)
     private transient String facebookId;
 
