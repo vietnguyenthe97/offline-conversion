@@ -3,27 +3,34 @@ package runnable;
 import gomhangvn.data.service.GomhangProductService;
 import nhanhvn.data.services.BillDataService;
 import nhanhvn.data.services.ProductDataService;
+import nhanhvn.data.services.TransactionService;
 import shared.persistence.ServiceFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+
 public class ConsoleIO {
     private BillDataService billDataService;
     private ProductDataService productDataService;
     private GomhangProductService gomhangProductService;
+    private TransactionService transactionService;
     private final String lineBreak = "\n";
     private final String menu = "******Service options******" + lineBreak +
-            "0. Exit the program" + lineBreak +
-            "1. Get & store products from nhanhvn" + lineBreak +
-            "2. Get & store bills from nhanhvn" + lineBreak +
-            "3. Download & store products from gomhangvn" + lineBreak +
-            "4. Store facebookId for nhanhvn products";
+            "0. Thoát chương trình" + lineBreak +
+            "1. Lấy và lưu dữ liệu sản phẩm từ nhanhvn" + lineBreak +
+            "2. Lấy và lưu dữ liệu hóa đơn từ nhanhvn" + lineBreak +
+            "3. Tải và lưu dữ liệu sản phẩm từ gomhangvn" + lineBreak +
+            "4. Xuất dữ liệu sản phẩm từ nhanhvn sang csv file" + lineBreak +
+            "5. Cập nhật facebookId từ csv file";
 
     private void initializeServices() {
         billDataService = (BillDataService) ServiceFactory.createNhanhvnService("bill");
         productDataService =  (ProductDataService) ServiceFactory.createNhanhvnService("product");
+        transactionService = (TransactionService) ServiceFactory.createNhanhvnService("transaction");
         gomhangProductService = ServiceFactory.createGomhangService("product");
     }
 
@@ -33,14 +40,15 @@ public class ConsoleIO {
     }
 
     private void printDone() {
-        System.out.println("Service runs successfully, returning to menu selection.");
+        System.out.println("Service finished, returning to menu.");
     }
 
     private void printUnsupportedService() {
         System.out.println("Current service is not supported, please try again!");
     }
 
-    public void consoleApplication() throws IOException, SQLException {
+    public void consoleApplication() throws IOException, SQLException, 
+    CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         int option = -1;
         Scanner input = new Scanner(System.in);
         do {
@@ -82,9 +90,15 @@ public class ConsoleIO {
                 }
 
                 case 4: {
-                    productDataService.updateFacebookId();
+                	transactionService.exportNhanhvnProducts();
                     printDone();
                     break;
+                }
+                
+                case 5: {
+                	transactionService.updateFacebookId();
+                	printDone();
+                	break;
                 }
 
                 default: {
@@ -97,7 +111,8 @@ public class ConsoleIO {
         input.close();
     }
 
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) throws IOException, SQLException, 
+    CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         ConsoleIO consoleApp = new ConsoleIO();
         consoleApp.consoleApplication();
     }

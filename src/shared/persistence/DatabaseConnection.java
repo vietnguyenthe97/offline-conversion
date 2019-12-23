@@ -216,7 +216,10 @@ public class DatabaseConnection {
         return nhanhvnProducts;
     }
 
-    public static void main(String[] args) throws SQLException, CsvRequiredFieldEmptyException, IOException, CsvDataTypeMismatchException {
+    public static void main(String[] args) throws SQLException, CsvRequiredFieldEmptyException,
+    IOException, CsvDataTypeMismatchException {
+    	DatabaseConnection db = new DatabaseConnection();
+    	db.retrieveDataFromNhanhvnProduct();
     }
 }
 

@@ -5,12 +5,15 @@ import com.opencsv.bean.CsvBindByPosition;
 
 public class NhanhvnProduct {
 	@Expose
+	@CsvBindByPosition(position = 0)
     private String idNhanh;
 	
 	@Expose
+	@CsvBindByPosition(position = 1)
     private String parentId;
 	
 	@Expose
+	@CsvBindByPosition(position = 2)
     private String name;
 
 	@Expose(serialize = true, deserialize = false)

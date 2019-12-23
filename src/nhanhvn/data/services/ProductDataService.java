@@ -86,33 +86,9 @@ public class ProductDataService extends  AbstractService {
         System.out.println("Total products: " + this.products.getProductList().size());
     }
 
-    public void updateFacebookId() throws SQLException {
-        Reader reader = null;
-        try {
-            reader = Files.newBufferedReader(Paths.get("resources/facebookid_mapping_sheet.csv"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(reader != null) {
-            CsvToBean<IdConversionObject> csvToBean = new CsvToBeanBuilder<IdConversionObject>(reader)
-                    .withType(IdConversionObject.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .withSeparator(',')
-                    .withSkipLines(1)
-                    .build();
-            DatabaseConnection databaseConnection = new DatabaseConnection();
-            Iterator<IdConversionObject> csvUserIterator = csvToBean.iterator();
-            while (csvUserIterator.hasNext()) {
-                IdConversionObject idConversionObject = csvUserIterator.next();
-                databaseConnection.persistFacebookId(idConversionObject);
-            }
-        }
-    }
-
     public static void main(String[] args) throws IOException, SQLException {
         ProductDataService service = new ProductDataService(               );
         //service.getAllProducts();
-        service.updateFacebookId();
+        //service.updateFacebookId();
     }
 }

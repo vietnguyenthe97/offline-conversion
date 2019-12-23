@@ -4,6 +4,7 @@ import gomhangvn.data.service.GomhangProductService;
 import nhanhvn.data.services.AbstractService;
 import nhanhvn.data.services.BillDataService;
 import nhanhvn.data.services.ProductDataService;
+import nhanhvn.data.services.TransactionService;
 
 public class ServiceFactory {
     public static AbstractService createNhanhvnService(String datatype) {
@@ -15,6 +16,10 @@ public class ServiceFactory {
             return new ProductDataService();
         }
 
+        if(datatype.equals("transaction")) {
+        	return new TransactionService();
+        }
+        
         System.out.print("Unknown type, return null");
         return null;
     }
