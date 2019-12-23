@@ -107,6 +107,7 @@ public class ConsoleIO {
                 }
             }
             input.nextLine();
+            System.out.print("\n\n");
         } while (option != 0);
         input.close();
     }
