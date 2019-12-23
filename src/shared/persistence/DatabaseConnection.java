@@ -200,17 +200,20 @@ public class DatabaseConnection {
         Statement st = connection.createStatement();
         ResultSet resultSet = st.executeQuery("SELECT * FROM  nhanhvn_product_list");
         while (resultSet.next()) {
-            NhanhvnProduct nhanhvnProduct = new NhanhvnProduct();
-            String name = resultSet.getString("productName");
-            String idNhanh = resultSet.getString("idNhanh");
-            String facebookId = resultSet.getString("facebookId");
             String parentId = resultSet.getString("parentId");
 
-            nhanhvnProduct.setName(name);
-            nhanhvnProduct.setIdNhanh(idNhanh);
-            nhanhvnProduct.setFacebookId(facebookId);
-            nhanhvnProduct.setParentId(parentId);
-            nhanhvnProducts.getProductList().add(nhanhvnProduct);
+            if(Integer.parseInt(parentId) < 0) {
+                NhanhvnProduct nhanhvnProduct = new NhanhvnProduct();
+                String name = resultSet.getString("productName");
+                String idNhanh = resultSet.getString("idNhanh");
+                String facebookId = resultSet.getString("facebookId");
+
+                nhanhvnProduct.setName(name);
+                nhanhvnProduct.setIdNhanh(idNhanh);
+                nhanhvnProduct.setFacebookId(facebookId);
+                nhanhvnProduct.setParentId(parentId);
+                nhanhvnProducts.getProductList().add(nhanhvnProduct);
+            }
         }
         connection.close();
         return nhanhvnProducts;
