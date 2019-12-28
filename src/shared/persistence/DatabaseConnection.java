@@ -191,28 +191,44 @@ public class DatabaseConnection {
         }
     }
 
+    public void updateFacebookIdFromProductTableToBillDetails() throws SQLException {
+        connection = makeDbConnection();
+        int status = 0;
+        if (connection != null) {
+            String sqlQuery = "UPDATE nhanhvn_bill_details bill " +
+                    "SET bill.facebookId = " +
+                    "(SELECT product.facebookId " +
+                    "FROM nhanhvn_product_list product WHERE product.idNhanh = bill.productId);";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            System.out.println("================== Mapping facebookId to bill details... ");
+            status = preparedStatement.executeUpdate();
+            System.out.println("================== Finished Mapping facebookId to bill details ");
+        }
+        System.out.println("Total products updated in bill details: " + status);
+        connection.close();
+    }
+
     public NhanhvnProducts retrieveDataFromNhanhvnProduct() throws SQLException {
         NhanhvnProducts nhanhvnProducts = new NhanhvnProducts();
         connection = makeDbConnection();
         if (connection != null) {
+            Statement st = connection.createStatement();
+            ResultSet resultSet = st.executeQuery("SELECT * FROM  nhanhvn_product_list");
+            while (resultSet.next()) {
+                String parentId = resultSet.getString("parentId");
 
-        }
-        Statement st = connection.createStatement();
-        ResultSet resultSet = st.executeQuery("SELECT * FROM  nhanhvn_product_list");
-        while (resultSet.next()) {
-            String parentId = resultSet.getString("parentId");
+                if(Integer.parseInt(parentId) < 0) {
+                    NhanhvnProduct nhanhvnProduct = new NhanhvnProduct();
+                    String name = resultSet.getString("productName");
+                    String idNhanh = resultSet.getString("idNhanh");
+                    String facebookId = resultSet.getString("facebookId");
 
-            if(Integer.parseInt(parentId) < 0) {
-                NhanhvnProduct nhanhvnProduct = new NhanhvnProduct();
-                String name = resultSet.getString("productName");
-                String idNhanh = resultSet.getString("idNhanh");
-                String facebookId = resultSet.getString("facebookId");
-
-                nhanhvnProduct.setName(name);
-                nhanhvnProduct.setIdNhanh(idNhanh);
-                nhanhvnProduct.setFacebookId(facebookId);
-                nhanhvnProduct.setParentId(parentId);
-                nhanhvnProducts.getProductList().add(nhanhvnProduct);
+                    nhanhvnProduct.setName(name);
+                    nhanhvnProduct.setIdNhanh(idNhanh);
+                    nhanhvnProduct.setFacebookId(facebookId);
+                    nhanhvnProduct.setParentId(parentId);
+                    nhanhvnProducts.getProductList().add(nhanhvnProduct);
+                }
             }
         }
         connection.close();

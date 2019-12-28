@@ -1,5 +1,17 @@
 package nhanhvn.data.services;
 
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import nhanhvn.data.models.IdConversionObject;
+import nhanhvn.data.models.NhanhvnProduct;
+import nhanhvn.data.models.NhanhvnProducts;
+import shared.persistence.DatabaseConnection;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -8,19 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Iterator;
-
-import com.opencsv.CSVWriter;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
-import com.opencsv.bean.StatefulBeanToCsv;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-
-import nhanhvn.data.models.IdConversionObject;
-import nhanhvn.data.models.NhanhvnProduct;
-import nhanhvn.data.models.NhanhvnProducts;
-import shared.persistence.DatabaseConnection;
 
 public class TransactionService extends AbstractService {
 	private final String PRODUCT_EXPORT_PATH = "resources/exported_product_list.csv";
@@ -70,6 +69,7 @@ public class TransactionService extends AbstractService {
                 IdConversionObject idConversionObject = csvUserIterator.next();
                 databaseConnection.persistFacebookId(idConversionObject);
             }
+			databaseConnection.updateFacebookIdFromProductTableToBillDetails();
         }
     }
 }

@@ -30,8 +30,6 @@ public class ServiceTest {
 		stopWatch.stop();
 		System.out.println("*********TIME FOR RUNNING BILL SERVICE: " + stopWatch.getTime(TimeUnit.MINUTES) + " MINUTES");
 
-
-
 //		BillData billData = new BillData();
 //		String a = "{\"icpp\":\"100\",\"fromDate\":\"2019-10-20\",\"toDate\":\"2019-12-21\",\"type\":\"2\",\"modes\": [\"1\", \"2\", \"5\", \"6\", \"8\", \"10\"],\"page\":\"1\"}";
 //		String check = DataHelper.generateChecksum(billData.getApiSecretKey(), a);
