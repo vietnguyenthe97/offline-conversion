@@ -2,7 +2,6 @@ package nhanhvn.rest.api;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import shared.datahelper.DataHelper;
 import nhanhvn.security.apistorage.ApiCredentials;
 import nhanhvn.security.apistorage.ApiHelper;
 import org.apache.http.Consts;
@@ -16,6 +15,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import shared.datahelper.DataHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,23 +51,11 @@ public abstract class AbstractData {
 	}
 
 	public void initialize() {
-	 apiCredentials = ApiHelper.retrieveApiCredentials();
-	 postParams = new ArrayList<NameValuePair>();
-	 postParams.add(new BasicNameValuePair("version", apiCredentials.getVersion()));
-	 postParams.add(new BasicNameValuePair("apiUsername", apiCredentials.getApiUserName()));
-	 }
-
-	 public String getApiVersion() {
-	 return apiCredentials.getVersion();
-	 }
-
-	 public String getApiUserName() {
-	 return apiCredentials.getApiUserName();
-	 }
-
-	 public String getApiSecretKey() {
-	 return apiCredentials.getApiSecretKey();
-	 }
+		apiCredentials = ApiHelper.getApiCredentials();
+		postParams = new ArrayList<NameValuePair>();
+		postParams.add(new BasicNameValuePair("version", apiCredentials.getApiDetails().getVersion()));
+		postParams.add(new BasicNameValuePair("apiUsername", apiCredentials.getApiDetails().getApiUserName()));
+	}
 
 	 public int getRetryTimes() { return retryTimes; }
 
@@ -96,7 +84,7 @@ public abstract class AbstractData {
 		Objects.nonNull(postParams);
 		postParams.add(new BasicNameValuePair(name, value));
 	}
-	
+
 	/**
 	 * Sending post request
 	 * @param data data to send
@@ -109,7 +97,7 @@ public abstract class AbstractData {
 		HttpPost httpPost = new HttpPost(this.getUrl());
 		this.addParam("data", data);
 
-		String checksum = DataHelper.generateChecksum(this.getApiSecretKey(), data);
+		String checksum = DataHelper.generateChecksum(apiCredentials.getApiDetails().getApiSecretKey(), data);
 		this.addParam("checksum", checksum);
 
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(postParams, Consts.UTF_8);

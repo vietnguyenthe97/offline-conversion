@@ -1,26 +1,22 @@
 package nhanhvn.security.apistorage;
 
 public class ApiCredentials {
-	private String version;
-	private String apiUserName;
-	private String apiSecretKey;
-	
-	public String getVersion() {
-		return version;
+	private FacebookOfflineConversionApiCredentials facebookDetails;
+	private NhanhvnApiCredentials apiDetails;
+
+	public FacebookOfflineConversionApiCredentials getFacebookDetails() {
+		return facebookDetails;
 	}
-	public void setVersion(String version) {
-		this.version = version;
+
+	public void setFacebookDetails(FacebookOfflineConversionApiCredentials facebookDetails) {
+		this.facebookDetails = facebookDetails;
 	}
-	public String getApiUserName() {
-		return apiUserName;
+
+	public NhanhvnApiCredentials getApiDetails() {
+		return apiDetails;
 	}
-	public void setApiUserName(String apiUserName) {
-		this.apiUserName = apiUserName;
-	}
-	public String getApiSecretKey() {
-		return apiSecretKey;
-	}
-	public void setApiSecretKey(String apiSecretKey) {
-		this.apiSecretKey = apiSecretKey;
+
+	public void setApiDetails(NhanhvnApiCredentials apiDetails) {
+		this.apiDetails = apiDetails;
 	}
 }
