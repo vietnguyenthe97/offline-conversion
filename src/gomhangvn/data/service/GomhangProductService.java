@@ -62,7 +62,7 @@ public class GomhangProductService {
 		}
 	}
 
-	public void getAndPersistProductsFromCsvFile() throws IOException, SQLException {
+	public void getAndPersistProductsFromCsvFile() throws SQLException {
 		downloadGomhangProductService();
 		Reader reader = null;
 		try {

@@ -121,9 +121,4 @@ public class BillDataService extends AbstractService {
         }
         System.out.println("Total bills: " + this.nhanhvnBills.getNhanhvnBillList().size());
     }
-
-    public static void main(String[] args) throws IOException, SQLException {
-
-    }
-
 }

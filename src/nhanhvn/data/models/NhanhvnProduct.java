@@ -16,7 +16,7 @@ public class NhanhvnProduct {
 	@CsvBindByPosition(position = 2)
     private String name;
 
-	@Expose(serialize = true, deserialize = false)
+	@Expose(deserialize = false)
     @CsvBindByPosition(position = 3)
     private String facebookId;
 

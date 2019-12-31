@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,10 +86,9 @@ public class DataHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Map<String, Object> convertJsonStringToMapObject(JsonObject json) throws IOException {
+		public static Map<String, Object> convertJsonStringToMapObject(JsonObject json) throws IOException {
 		String jsonString = json.toString();
-		HashMap<String, Object> dataMap = new ObjectMapper().readValue(jsonString, HashMap.class);
-		return dataMap;
+		return new ObjectMapper().readValue(jsonString, HashMap.class);
 	}
 
 	/**
@@ -98,26 +98,39 @@ public class DataHelper {
 	 */
 	public static Date parseDateTimeString(String dateTimeString) {
 		SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date localDateTime = null;
+		Date dateTime = null;
 		try {
-			localDateTime = dateTimeFormatter.parse(dateTimeString);
+			dateTime = dateTimeFormatter.parse(dateTimeString);
 		} catch (ParseException e) {
 			System.err.println("Wrong format input");
 			e.printStackTrace();
 		}
-		return localDateTime;
+		return dateTime;
+	}
+
+	/**
+	 * Check if the input date is within the range between current date and the date of 62 days before
+	 * @param inputDate
+	 * @return true if it is in the range, false otherwise
+	 */
+	public static boolean isDateWithin62DaysUntilToday(Date inputDate) {
+		Date currentDate = Calendar.getInstance().getTime();
+		Calendar calendarFrom62DaysBefore = Calendar.getInstance();
+		calendarFrom62DaysBefore.add(Calendar.DAY_OF_MONTH, -62);
+		Date dateFrom62DaysBefore = calendarFrom62DaysBefore.getTime();
+		return (inputDate.compareTo(dateFrom62DaysBefore) >= 0 && inputDate.compareTo(currentDate) <= 0);
 	}
 
 	/**
 	 * https://www.baeldung.com/sha-256-hashing-java
 	 * @param rawString
-	 * @return
+	 * @return hash 256
 	 */
 	public static String SHA256Hash(String rawString) throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
-		byte[] encodedhash = digest.digest(
+		byte[] encodedHash = digest.digest(
 				rawString.getBytes(StandardCharsets.UTF_8));
-		return bytesToHex(encodedhash);
+		return bytesToHex(encodedHash);
 	}
 
 	private static String bytesToHex(byte[] hash) {
@@ -130,14 +143,35 @@ public class DataHelper {
 		return hexString.toString();
 	}
 
+	/**
+	 * Remove all leading zeros, all special characters and add prefix 84 for the phone number
+	 * @param phoneNumber mobile phone number in string format, i.e +84945xxxx
+	 * @return formatted phone number as description
+	 */
 	public static String formatMobileNumber(String phoneNumber) {
 		return "84" + phoneNumber
 			.replaceFirst("^0+(?!$)", "")
 			.replaceAll("[^0-9]", "");
 	}
 
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		System.out.println(DataHelper.SHA256Hash("ccacacacac"));
-		System.out.println(DataHelper.formatMobileNumber("        0000000000945803932      "));
+	public static void main(String[] args) {
+		Calendar currentDateCalendar = Calendar.getInstance();
+		currentDateCalendar.add(Calendar.MONTH, 0);
+		System.out.println(Calendar.getInstance().getTime());
+
+		String date = "2019-10-20 10:11:20";
+		String date1 = "2019-12-21 19:02:00";
+		String date2 = "2020-01-01 00:00:00";
+		String date3 = "2019-12-31 23:59:00";
+		Date converted = DataHelper.parseDateTimeString(date);
+		Date converted1 = DataHelper.parseDateTimeString(date1);
+		Date converted2 = DataHelper.parseDateTimeString(date2);
+		Date converted3 = DataHelper.parseDateTimeString(date3);
+		System.out.println("?: " + converted);
+
+		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted));
+		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted1));
+		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted2));
+		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted3));
 	}
 }

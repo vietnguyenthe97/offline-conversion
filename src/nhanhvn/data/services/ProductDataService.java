@@ -1,28 +1,20 @@
 package nhanhvn.data.services;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
-
-import nhanhvn.data.models.IdConversionObject;
 import nhanhvn.data.models.NhanhvnProduct;
 import nhanhvn.data.models.NhanhvnProducts;
 import nhanhvn.rest.api.ProductData;
 import shared.datahelper.DataHelper;
 import shared.persistence.DatabaseConnection;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ProductDataService extends  AbstractService {
     private ProductData productData;
@@ -84,11 +76,5 @@ public class ProductDataService extends  AbstractService {
             products.clear();
         }
         System.out.println("Total products: " + this.products.getProductList().size());
-    }
-
-    public static void main(String[] args) throws IOException, SQLException {
-        ProductDataService service = new ProductDataService(               );
-        //service.getAllProducts();
-        //service.updateFacebookId();
     }
 }

@@ -83,7 +83,7 @@ public class DatabaseConnection {
         }
     }
 
-    public void persistNhanhvnBills(List<NhanhvnBill> bills) throws SQLException, IOException {
+    public void persistNhanhvnBills(List<NhanhvnBill> bills) throws SQLException {
         connection = makeDbConnection();
         if (connection != null) {
             String sqlQuery = "INSERT INTO nhanhvn_bills (id, customerName, customerMobile, createdDateTime, money)" +
@@ -238,7 +238,7 @@ public class DatabaseConnection {
     }
 
     private List<NhanhvnBillProductDetail> getBillDetailsFromDb() throws SQLException {
-        List<NhanhvnBillProductDetail> billDetailList = new ArrayList<>();;
+        List<NhanhvnBillProductDetail> billDetailList = new ArrayList<>();
         connection = makeDbConnection();
         if (connection != null) {
             Statement st = connection.createStatement();
