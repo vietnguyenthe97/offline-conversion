@@ -121,12 +121,17 @@ public class DataHelper {
 		return (inputDate.compareTo(dateFrom62DaysBefore) >= 0 && inputDate.compareTo(currentDate) <= 0);
 	}
 
+	public static String convertDateToUnixTimeStampString(Date date) {
+		long unixTimeStamp = date.getTime()/1000;
+		return "cac";
+	}
+
 	/**
 	 * https://www.baeldung.com/sha-256-hashing-java
 	 * @param rawString
 	 * @return hash 256
 	 */
-	public static String SHA256Hash(String rawString) throws NoSuchAlgorithmException {
+	public static String Sha256Hash(String rawString) throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] encodedHash = digest.digest(
 				rawString.getBytes(StandardCharsets.UTF_8));
@@ -173,5 +178,7 @@ public class DataHelper {
 		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted1));
 		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted2));
 		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted3));
+
+		System.out.println(converted.getTime()/1000);
 	}
 }

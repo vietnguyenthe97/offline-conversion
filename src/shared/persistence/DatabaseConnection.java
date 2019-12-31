@@ -2,7 +2,7 @@ package shared.persistence;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import gomhangvn.data.model.GomhangProduct;
+import gomhangvn.data.models.GomhangProduct;
 import nhanhvn.data.models.*;
 
 import java.io.IOException;

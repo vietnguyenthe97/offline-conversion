@@ -1,4 +1,4 @@
-package gomhangvn.data.model;
+package gomhangvn.data.models;
 
 import java.util.ArrayList;
 import java.util.List;

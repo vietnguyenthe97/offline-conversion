@@ -2,8 +2,8 @@ package gomhangvn.data.service;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import gomhangvn.data.model.GomhangProduct;
-import gomhangvn.data.model.GomhangProducts;
+import gomhangvn.data.models.GomhangProduct;
+import gomhangvn.data.models.GomhangProducts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;

@@ -1,6 +1,5 @@
-package gomhangvn.data.model;
+package gomhangvn.data.models;
 
-import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 
 public class GomhangProduct {
