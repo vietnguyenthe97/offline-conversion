@@ -18,7 +18,7 @@ public class NhanhvnProduct {
 
 	@Expose(serialize = true, deserialize = false)
     @CsvBindByPosition(position = 3)
-    private transient String facebookId;
+    private String facebookId;
 
     public String getIdNhanh() {
         return idNhanh;

@@ -2,6 +2,7 @@ package nhanhvn.data.models;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NhanhvnBill {
@@ -15,7 +16,7 @@ public class NhanhvnBill {
     private double money;
 	@Expose
 	private String createdDateTime;
-    private List<NhanhvnBillProductDetail> products;
+    private List<NhanhvnBillProductDetail> products = new ArrayList<>();
 
     public String getId() {
         return id;

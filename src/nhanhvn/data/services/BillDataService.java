@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import shared.datahelper.DataHelper;
 import nhanhvn.data.models.NhanhvnBill;
 import nhanhvn.data.models.NhanhvnBillProductDetail;
 import nhanhvn.data.models.NhanhvnBills;
 import nhanhvn.rest.api.BillData;
+import shared.datahelper.DataHelper;
 import shared.persistence.DatabaseConnection;
 
 import java.io.IOException;
@@ -80,7 +80,9 @@ public class BillDataService extends AbstractService {
                 JsonObject productJson = billJson.get(entry.getKey()).getAsJsonObject().get("products").getAsJsonObject();
                 for(Map.Entry<String, JsonElement> productEntry : productJson.entrySet()) {
                     System.out.println(productJson.entrySet());
-                    Gson productGson = new GsonBuilder().create();
+                    Gson productGson = new GsonBuilder()
+                            .excludeFieldsWithoutExposeAnnotation()
+                            .create();
                     NhanhvnBillProductDetail productDetailElement =
                             productGson.fromJson(productEntry.getValue(), NhanhvnBillProductDetail.class);
                     System.out.println(productDetailElement.getQuantity());
@@ -121,8 +123,7 @@ public class BillDataService extends AbstractService {
     }
 
     public static void main(String[] args) throws IOException, SQLException {
-        BillDataService billDataService = new BillDataService();
-        billDataService.getBills("1");
+
     }
 
 }

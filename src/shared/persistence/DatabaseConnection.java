@@ -7,7 +7,9 @@ import nhanhvn.data.models.*;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DatabaseConnection {
     private Connection connection = null;
@@ -86,8 +88,8 @@ public class DatabaseConnection {
         if (connection != null) {
             String sqlQuery = "INSERT INTO nhanhvn_bills (id, customerName, customerMobile, createdDateTime, money)" +
                     "VALUES(?,?,?,?,?)" +
-                    "ON DUPLICATE KEY UPDATE" + 
-                    " customerName = VALUES(customerName)," + 
+                    "ON DUPLICATE KEY UPDATE" +
+                    " customerName = VALUES(customerName)," +
                     " customerMobile = VALUES(customerMobile)," +
             		" createdDateTime = VALUES(createdDateTime)," +
             		" money = VALUES(money);";
@@ -208,7 +210,7 @@ public class DatabaseConnection {
         connection.close();
     }
 
-    public NhanhvnProducts retrieveDataFromNhanhvnProduct() throws SQLException {
+    public NhanhvnProducts getNhanhvnProductsFromDb() throws SQLException {
         NhanhvnProducts nhanhvnProducts = new NhanhvnProducts();
         connection = makeDbConnection();
         if (connection != null) {
@@ -235,10 +237,114 @@ public class DatabaseConnection {
         return nhanhvnProducts;
     }
 
+    private List<NhanhvnBillProductDetail> getBillDetailsFromDb() throws SQLException {
+        List<NhanhvnBillProductDetail> billDetailList = new ArrayList<>();;
+        connection = makeDbConnection();
+        if (connection != null) {
+            Statement st = connection.createStatement();
+            ResultSet resultSet = st.executeQuery("SELECT * FROM nhanhvn_bill_details");
+            while(resultSet.next()) {
+                NhanhvnBillProductDetail  billDetails = new NhanhvnBillProductDetail();
+                billDetails.setId(resultSet.getString("productId"));
+                billDetails.setBillId(resultSet.getString("billId"));
+                billDetails.setFacebookId(resultSet.getString("facebookId"));
+                billDetails.setPrice(resultSet.getDouble("price"));
+                billDetails.setQuantity(resultSet.getFloat("quantity"));
+                billDetailList.add(billDetails);
+            }
+        }
+        connection.close();
+        return billDetailList;
+    }
+
+    public NhanhvnBills getBillsFromDb() throws SQLException {
+        NhanhvnBills nhanhvnBills = new NhanhvnBills();
+        List<NhanhvnBill> bills = nhanhvnBills.getNhanhvnBillList();
+        connection = makeDbConnection();
+        if (connection != null) {
+            Statement st = connection.createStatement();
+            ResultSet resultSet = st.executeQuery("SELECT * FROM nhanhvn_bills");
+            while(resultSet.next()) {
+                NhanhvnBill  bill = new NhanhvnBill();
+                bill.setCreatedDateTime(resultSet.getTimestamp("createdDateTime").toString());
+                bill.setCustomerMobile(resultSet.getString("customerMobile"));
+                bill.setId(resultSet.getString("id"));
+                bill.setMoney(resultSet.getDouble("money"));
+                bills.add(bill);
+            }
+        }
+        connection.close();
+
+        if (!bills.isEmpty()) {
+            List<NhanhvnBillProductDetail> nhanhvnBillProductDetails = getBillDetailsFromDb();
+            for (NhanhvnBill bill: bills) {
+                for (NhanhvnBillProductDetail billDetail: nhanhvnBillProductDetails) {
+                    if (billDetail.getBillId().equals(bill.getId())) {
+                        bill.getProducts().add(new NhanhvnBillProductDetail(billDetail));
+                        System.out.println("Add product " + billDetail.getId() + " to bill " + bill.getId());
+                    }
+                }
+            }
+        }
+        return nhanhvnBills;
+    }
+
+    private NhanhvnBills filterBillsWithNoUnmatchedProducts(NhanhvnBills bills) {
+        NhanhvnBills filteredBills = new NhanhvnBills();
+        List<NhanhvnBill> billList = new ArrayList<>();
+        billList = bills.getNhanhvnBillList().stream()
+                .filter(e -> e.getProducts().stream()
+                        .allMatch(productDetail -> !productDetail.getFacebookId().isEmpty()))
+                .collect(Collectors.toList());
+        filteredBills.setNhanhvnBillList(billList);
+
+//        for (NhanhvnBill bill: bills.getNhanhvnBillList()) {
+//            boolean flag = false;
+//            for (NhanhvnBillProductDetail product: bill.getProducts()) {
+//                if (product.getFacebookId().isEmpty()) {
+//                    flag = true;
+//                    break;
+//                }
+//            }
+//
+//            if (flag == false) {
+//                billList.add(bill);
+//            }
+//        }
+//        filteredBills.setNhanhvnBillList(billList);
+//1157
+
+
+        return filteredBills;
+    }
+
     public static void main(String[] args) throws SQLException, CsvRequiredFieldEmptyException,
     IOException, CsvDataTypeMismatchException {
     	DatabaseConnection db = new DatabaseConnection();
-    	db.retrieveDataFromNhanhvnProduct();
+//        List<NhanhvnBillProductDetail> bills = db.getBillDetailsFromDb();
+//        System.out.println(bills.size());
+//        bills.stream()
+//                .forEach(bill -> {
+//                    System.out.println(bill.getPrice());
+//                    System.out.println(bill.getId());
+//                    System.out.println(bill.getQuantity());
+//                    System.out.println(bill.getFacebookId().isEmpty()?"empty facebookId":bill.getFacebookId());
+//                    System.out.println(bill.getBillId());
+//                });
+        NhanhvnBills bills = db.getBillsFromDb();
+
+        System.out.println("Total bills: " + bills.getNhanhvnBillList().size());
+
+        NhanhvnBill myBill = new NhanhvnBill();
+        for(NhanhvnBill bill: bills.getNhanhvnBillList()) {
+            if (bill.getId().equals("70424912")) {
+                myBill = bill;
+                break;
+            }
+        }
+
+        System.out.println(myBill.getProducts().size());
+        System.out.println("List after being filtered: " + db.filterBillsWithNoUnmatchedProducts(bills).getNhanhvnBillList().size());
     }
 }
 

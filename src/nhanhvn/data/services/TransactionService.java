@@ -27,7 +27,7 @@ public class TransactionService extends AbstractService {
 	private DatabaseConnection databaseConnection = new DatabaseConnection();
 	
 	public void exportNhanhvnProducts() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, SQLException {
-		NhanhvnProducts nhanhvnProducts = databaseConnection.retrieveDataFromNhanhvnProduct();
+		NhanhvnProducts nhanhvnProducts = databaseConnection.getNhanhvnProductsFromDb();
 		
 		File file = new File(PRODUCT_EXPORT_PATH);
 		if (!file.exists()) {
