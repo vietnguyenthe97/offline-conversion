@@ -182,6 +182,8 @@ public class DataHelper {
 		System.out.println(converted.getTime()/1000);
 
 		System.out.println(DataHelper.sha256Hash("mary@example.com"));
-		System.out.println(DataHelper.sha256Hash("15559876543"));
+		System.out.println("0903637792");
+		System.out.println(DataHelper.formatMobileNumber("0903637792"));
+		System.out.println(DataHelper.sha256Hash("0903637792"));
 	}
 }

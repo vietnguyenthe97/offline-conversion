@@ -155,6 +155,7 @@ public class UploadOfflineEventData {
         } else {
             System.out.println("Unexpected error: " + response.getStatusLine().getStatusCode());
         }
+        System.out.println("Total bills: " + bills.size());
     }
 
     public void uploadAllBills() throws SQLException {
