@@ -1,15 +1,24 @@
 package offlineconversion.data.models;
 
 public class ContentElements {
-    String facebookId;
+    String id;
     float quantity;
 
-    public String getFacebookId() {
-        return facebookId;
+    public ContentElements() {
+
     }
 
-    public void setFacebookId(String facebookId) {
-        this.facebookId = facebookId;
+    public ContentElements(String id, float quantity) {
+        this.id = id;
+        this.quantity = quantity;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public float getQuantity() {

@@ -92,7 +92,7 @@ public class BillDataService extends AbstractService {
                 bills.add(billElement);
             }
 
-            if(this.nhanhvnBills.getNhanhvnBillList().isEmpty()) {
+            if (this.nhanhvnBills.getNhanhvnBillList().isEmpty()) {
                 this.nhanhvnBills.setNhanhvnBillList(bills);
             } else {
                 bills.stream().forEach(billElement -> {

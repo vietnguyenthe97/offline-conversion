@@ -81,7 +81,7 @@ public abstract class AbstractData {
 	 * @param value value of the fieldname as string
 	 */
 	public void addParam(String name, String value) {
-		Objects.nonNull(postParams);
+		Objects.requireNonNull(postParams);
 		postParams.add(new BasicNameValuePair(name, value));
 	}
 

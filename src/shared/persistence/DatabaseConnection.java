@@ -263,7 +263,7 @@ public class DatabaseConnection {
         connection = makeDbConnection();
         if (connection != null) {
             Statement st = connection.createStatement();
-            ResultSet resultSet = st.executeQuery("SELECT * FROM nhanhvn_bills");
+            ResultSet resultSet = st.executeQuery("SELECT * FROM nhanhvn_bills WHERE customerMobile != ''");
             while(resultSet.next()) {
                 NhanhvnBill  bill = new NhanhvnBill();
                 bill.setCreatedDateTime(resultSet.getTimestamp("createdDateTime").toString());
@@ -286,7 +286,7 @@ public class DatabaseConnection {
                 }
             }
         }
-        return nhanhvnBills;
+        return filterBillsWithNoUnmatchedProducts(nhanhvnBills);
     }
 
     private NhanhvnBills filterBillsWithNoUnmatchedProducts(NhanhvnBills bills) {

@@ -123,7 +123,7 @@ public class DataHelper {
 
 	public static String convertDateToUnixTimeStampString(Date date) {
 		long unixTimeStamp = date.getTime()/1000;
-		return "cac";
+		return String.valueOf(unixTimeStamp);
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class DataHelper {
 	 * @param rawString
 	 * @return hash 256
 	 */
-	public static String Sha256Hash(String rawString) throws NoSuchAlgorithmException {
+	public static String sha256Hash(String rawString) throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] encodedHash = digest.digest(
 				rawString.getBytes(StandardCharsets.UTF_8));
@@ -159,7 +159,7 @@ public class DataHelper {
 			.replaceAll("[^0-9]", "");
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchAlgorithmException {
 		Calendar currentDateCalendar = Calendar.getInstance();
 		currentDateCalendar.add(Calendar.MONTH, 0);
 		System.out.println(Calendar.getInstance().getTime());
@@ -180,5 +180,8 @@ public class DataHelper {
 		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted3));
 
 		System.out.println(converted.getTime()/1000);
+
+		System.out.println(DataHelper.sha256Hash("mary@example.com"));
+		System.out.println(DataHelper.sha256Hash("15559876543"));
 	}
 }
