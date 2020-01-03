@@ -1,9 +1,5 @@
 package shared.datahelper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -15,6 +11,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 /**
  * Class to handle strings and json objects like conversion methods, hash generator, etc.
  */
@@ -25,25 +25,8 @@ public class DataHelper {
 	 * @return json as String
 	 */
 	public static String convertMapToJsonString(Map<String, Object> mapData) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		String jsonString = "";
-		try {
-			jsonString = objectMapper.writeValueAsString(mapData);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return jsonString;
-	}
-
-	public static String convertMapToJsonStrings(Map<String, Object> mapData) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		String jsonString = "";
-		try {
-			jsonString = objectMapper.writeValueAsString(mapData);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return jsonString;
+		Gson gson = new Gson();
+		return gson.toJson(mapData);
 	}
 
 	/**

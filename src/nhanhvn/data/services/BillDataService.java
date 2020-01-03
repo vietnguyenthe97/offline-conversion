@@ -1,23 +1,26 @@
 package nhanhvn.data.services;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import nhanhvn.data.models.NhanhvnBill;
 import nhanhvn.data.models.NhanhvnBillProductDetail;
 import nhanhvn.data.models.NhanhvnBills;
 import nhanhvn.rest.api.BillData;
 import shared.datahelper.DataHelper;
 import shared.persistence.DatabaseConnection;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public class BillDataService extends AbstractService {
 	private final String FROM_DATE = "fromDate";
@@ -55,7 +58,7 @@ public class BillDataService extends AbstractService {
         dataMap.put(FROM_DATE, dateFromPrevious62Days.toString());
         dataMap.put(TO_DATE, currentDate.toString());
         dataMap.put(TYPE, "2");
-        List<String> modeList = Arrays.asList("1", "2", "5", "6", "8", "10");
+        List<Integer> modeList = Arrays.asList(1, 2, 5, 6, 8, 10);
         dataMap.put(MODES, modeList);
     }
 
@@ -105,6 +108,7 @@ public class BillDataService extends AbstractService {
 
     public void getAndPersistAllBills() throws IOException, SQLException {
         String data = DataHelper.convertMapToJsonString(dataMap);
+        System.out.println(data);
         this.billData.dataPostRequest(data);
         
         int totalPages = this.billData.getTotalPages();
@@ -121,4 +125,26 @@ public class BillDataService extends AbstractService {
         }
         System.out.println("Total bills: " + this.nhanhvnBills.getNhanhvnBillList().size());
     }
+    
+    public static void main(String[] args) throws JsonProcessingException {
+    	BillDataService service = new BillDataService();
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Integer> modeList = Arrays.asList(1, 2, 5, 6, 8, 10);
+		Gson gson = new Gson();
+		String jsonString = gson.toJson(modeList);
+		String data = "{\"icpp\":\"100\",\"fromDate\":\"2019-11-02\",\"toDate\":\"2020-01-03\",\"type\":\"2\", \"modes\": [1, 2, 5, 6, 8, 10]}";
+				 
+		//DataHelper.convertMapToJsonString(service.dataMap);
+		String checksum = DataHelper.generateChecksum("Ne658esvsdf_2tdfytregfd_ty8t76ry", data);
+		System.out.println(data);
+		System.out.println(checksum);
+		map.put("something", modeList);
+		map.put("Conscience", "Stricken");
+		System.out.println(map);
+		String jsonStringS = gson.toJson(map);
+		System.out.println(jsonStringS);
+		
+		System.out.println(DataHelper.convertMapToJsonString(service.dataMap));
+		
+	}
 }
