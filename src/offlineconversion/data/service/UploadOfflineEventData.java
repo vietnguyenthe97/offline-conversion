@@ -21,7 +21,9 @@ import org.apache.http.util.EntityUtils;
 import shared.datahelper.DataHelper;
 import shared.persistence.DatabaseConnection;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -162,6 +164,15 @@ public class UploadOfflineEventData {
         initializeHttpRequest();
         System.out.println("Filtering bills within previous 62 days (some bills may expire)");
         initializeBills();
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter("resources/filterbill.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        System.out.println("Total bills: " + bills.size());
+        printWriter.printf("Total bills filtered: %s\n" , bills.size());
 
         bills.stream().forEach(bill -> {
             DataConverter dataConverter = new DataConverter();
@@ -169,11 +180,14 @@ public class UploadOfflineEventData {
                 dataConverter.prepareSendingData(bill);
                 ConversionData data = dataConverter.getConversionData();
                 JsonArray dataArray = prepareHttpPostParameters(data);
-                uploadBill(dataArray, bill.getId());
-            } catch (IOException | NoSuchAlgorithmException e) {
+                //uploadBill(dataArray, bill.getId());
+                System.out.println("Bill id is: "  + bill.getId());
+                printWriter.printf("Bill id: %s\n", bill.getId());
+            } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         });
+        printWriter.close();
     }
 
     private void addParam(String name, String value) {
