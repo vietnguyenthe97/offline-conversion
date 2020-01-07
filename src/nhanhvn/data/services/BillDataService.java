@@ -27,6 +27,7 @@ public class BillDataService extends AbstractService {
 	private final String TO_DATE = "toDate";
 	private final String TYPE = "type";
 	private final String MODES = "modes";
+	private final String MODE = "mode";
     private BillData billData;
     private NhanhvnBills nhanhvnBills;
 
@@ -57,15 +58,15 @@ public class BillDataService extends AbstractService {
         LocalDate dateFromPrevious62Days = currentDate.minusDays(62);
         dataMap.put(FROM_DATE, dateFromPrevious62Days.toString());
         dataMap.put(TO_DATE, currentDate.toString());
-        dataMap.put(TYPE, "2");
-        List<Integer> modeList = Arrays.asList(1, 2, 5, 6, 8, 10);
-        dataMap.put(MODES, modeList);
+        dataMap.put(TYPE, 2);
+        //List<Integer> modeList = Arrays.asList(1, 2, 5, 6, 8, 10);
+        dataMap.put(MODE, 2);
     }
 
     public void getBills(String pageIndex) throws IOException {
         dataMap.put(PAGE, pageIndex);
         List<NhanhvnBill> bills = new ArrayList<>();
-        List<NhanhvnBillProductDetail> billDetails = new ArrayList<>();
+        List<NhanhvnBillProductDetail> billDetails = null;
 
         String data = DataHelper.convertMapToJsonString(dataMap);
         System.out.println(data);
@@ -82,6 +83,7 @@ public class BillDataService extends AbstractService {
                 NhanhvnBill billElement = billGson.fromJson(entry.getValue(), NhanhvnBill.class);
                 JsonObject productJson = billJson.get(entry.getKey()).getAsJsonObject().get("products").getAsJsonObject();
                 for(Map.Entry<String, JsonElement> productEntry : productJson.entrySet()) {
+                    billDetails = new ArrayList<>();
                     System.out.println(productJson.entrySet());
                     Gson productGson = new GsonBuilder()
                             .excludeFieldsWithoutExposeAnnotation()
@@ -91,7 +93,12 @@ public class BillDataService extends AbstractService {
                     System.out.println(productDetailElement.getQuantity());
                     billDetails.add(productDetailElement);
                 }
-                billElement.setProducts(billDetails);
+
+                if (billDetails != null) {
+                    System.out.println(">>>>>>>>>> Total products of bill: " + billDetails.size());
+                    billElement.setProducts(billDetails);
+                    billDetails.stream().forEach(e -> System.out.println(e.getBillId()));
+                }
                 bills.add(billElement);
             }
 

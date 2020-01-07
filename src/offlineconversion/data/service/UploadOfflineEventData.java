@@ -182,7 +182,7 @@ public class UploadOfflineEventData {
                 JsonArray dataArray = prepareHttpPostParameters(data);
                 //uploadBill(dataArray, bill.getId());
                 System.out.println("Bill id is: "  + bill.getId());
-                printWriter.printf("Bill id: %s\n", bill.getId());
+                printWriter.printf("Bill id: %s, created: %s, money: %s, mobile: %s\n", bill.getId(), bill.getCreatedDateTime(), bill.getMoney(), bill.getCustomerMobile());
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }

@@ -286,6 +286,7 @@ public class DatabaseConnection {
                 }
             }
         }
+        System.out.println("Total bills: " + nhanhvnBills.getNhanhvnBillList().size());
         return filterBillsWithNoUnmatchedProducts(nhanhvnBills);
     }
 
@@ -297,24 +298,6 @@ public class DatabaseConnection {
                         .allMatch(productDetail -> !productDetail.getFacebookId().isEmpty()))
                 .collect(Collectors.toList());
         filteredBills.setNhanhvnBillList(billList);
-
-//        for (NhanhvnBill bill: bills.getNhanhvnBillList()) {
-//            boolean flag = false;
-//            for (NhanhvnBillProductDetail product: bill.getProducts()) {
-//                if (product.getFacebookId().isEmpty()) {
-//                    flag = true;
-//                    break;
-//                }
-//            }
-//
-//            if (flag == false) {
-//                billList.add(bill);
-//            }
-//        }
-//        filteredBills.setNhanhvnBillList(billList);
-//1157
-
-
         return filteredBills;
     }
 
