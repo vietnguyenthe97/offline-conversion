@@ -5,6 +5,7 @@ import nhanhvn.data.services.AbstractService;
 import nhanhvn.data.services.BillDataService;
 import nhanhvn.data.services.ProductDataService;
 import nhanhvn.data.services.TransactionService;
+import offlineconversion.data.service.UploadOfflineEventService;
 
 public class ServiceFactory {
     public static AbstractService createNhanhvnService(String datatype) {
@@ -27,6 +28,15 @@ public class ServiceFactory {
     public static GomhangProductService createGomhangService(String datatype) {
         if(datatype.equalsIgnoreCase("product")) {
             return new GomhangProductService();
+        }
+
+        System.out.print("Unknown type, return null");
+        return null;
+    }
+
+    public static UploadOfflineEventService createUploadOfflineEventService(String datatype) {
+        if(datatype.equalsIgnoreCase("upload")) {
+            return new UploadOfflineEventService();
         }
 
         System.out.print("Unknown type, return null");

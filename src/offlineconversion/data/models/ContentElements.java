@@ -4,9 +4,7 @@ public class ContentElements {
     String id;
     float quantity;
 
-    public ContentElements() {
-
-    }
+    public ContentElements() {}
 
     public ContentElements(String id, float quantity) {
         this.id = id;

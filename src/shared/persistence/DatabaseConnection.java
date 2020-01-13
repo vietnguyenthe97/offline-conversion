@@ -1,15 +1,11 @@
 package shared.persistence;
 
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import gomhangvn.data.models.GomhangProduct;
 import nhanhvn.data.models.*;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DatabaseConnection {
     private Connection connection = null;
@@ -73,7 +69,6 @@ public class DatabaseConnection {
             for(GomhangProduct productElement: products) {
                 String id = productElement.getId();
                 String name = productElement.getName();
-                preparedStatement.setString(1, id);
                 preparedStatement.setString(2, name);
                 totalChanges = preparedStatement.executeUpdate();
             }
@@ -171,17 +166,18 @@ public class DatabaseConnection {
                     parentIdValue = Integer.parseInt(parentIdFromCsv);
                     if (parentIdValue < 0 && !facebookIdFromCsv.isEmpty()) {
                         facebookIdValue = Integer.parseInt(facebookIdFromCsv);
-                        if (facebookIdValue > 0) {
-                            String sqlQuery = "UPDATE nhanhvn_product_list" +
-                                    " SET facebookId = ?" +
-                                    " WHERE idNhanh = ?" +
-                                    " OR parentId = ?;";
-                            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-                            preparedStatement.setString(1, facebookIdFromCsv);
-                            preparedStatement.setString(2, idNhanhFromCsv);
-                            preparedStatement.setString(3, idNhanhFromCsv);
-                            status = preparedStatement.executeUpdate();
+                        if (facebookIdValue < 0) {
+                            facebookIdValue = -1;
                         }
+                        String sqlQuery = "UPDATE nhanhvn_product_list" +
+                                " SET facebookId = ?" +
+                                " WHERE idNhanh = ?" +
+                                " OR parentId = ?;";
+                        PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+                        preparedStatement.setString(1, facebookIdFromCsv);
+                        preparedStatement.setString(2, idNhanhFromCsv);
+                        preparedStatement.setString(3, idNhanhFromCsv);
+                        status = preparedStatement.executeUpdate();
                     }
                 } catch(NumberFormatException e) {
                     e.printStackTrace();
@@ -210,12 +206,54 @@ public class DatabaseConnection {
         connection.close();
     }
 
-    public NhanhvnProducts getNhanhvnProductsFromDb() throws SQLException {
+    public void updateBillUploadStatus(NhanhvnBill bill) throws SQLException {
+        connection = makeDbConnection();
+        int status = 0;
+        if (connection != null) {
+            String sqlQuery = "UPDATE nhanhvn_bills bills " +
+                    "SET bills.facebookStatus = ? " +
+                    "WHERE bills.id = ?;";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setBoolean(1, bill.getFacebookStatus());
+            preparedStatement.setString(2, bill.getId());
+            System.out.println("================== Mapping upload status to bill " + bill.getId());
+            status = preparedStatement.executeUpdate();
+        }
+        System.out.println("Update upload status: " + status);
+        connection.close();
+    }
+
+    public NhanhvnBill getBillById(String billId) throws SQLException {
+        NhanhvnBill bill = new NhanhvnBill();
+        connection = makeDbConnection();
+        if (connection != null) {
+            String sqlQuery = "SELECT * FROM nhanhvn_bills " +
+                    "WHERE nhanhvn_bills.id = '" + billId + "'";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            //preparedStatement.setString(1, bill.getId());
+
+            ResultSet resultSet = preparedStatement.executeQuery(sqlQuery);
+            while(resultSet.next()) {
+                bill.setCreatedDateTime(resultSet.getTimestamp("createdDateTime").toString());
+                bill.setCustomerMobile(resultSet.getString("customerMobile"));
+                bill.setCustomerName(resultSet.getString("customerName"));
+                bill.setId(resultSet.getString("id"));
+                bill.setMoney(resultSet.getDouble("money"));
+                bill.setFacebookStatus(resultSet.getBoolean("facebookStatus"));
+            }
+        }
+        connection.close();
+        return bill;
+    }
+
+    public NhanhvnProducts getNhanhvnParentProductsFromDb() throws SQLException {
         NhanhvnProducts nhanhvnProducts = new NhanhvnProducts();
         connection = makeDbConnection();
         if (connection != null) {
             Statement st = connection.createStatement();
-            ResultSet resultSet = st.executeQuery("SELECT * FROM  nhanhvn_product_list");
+            ResultSet resultSet = st.executeQuery("SELECT * FROM  nhanhvn_product_list " +
+                    "WHERE (facebookId='-1' OR facebookId ='0') " +
+                    "AND parentId<0");
             while (resultSet.next()) {
                 String parentId = resultSet.getString("parentId");
 
@@ -268,6 +306,7 @@ public class DatabaseConnection {
                 NhanhvnBill  bill = new NhanhvnBill();
                 bill.setCreatedDateTime(resultSet.getTimestamp("createdDateTime").toString());
                 bill.setCustomerMobile(resultSet.getString("customerMobile"));
+                bill.setCustomerName(resultSet.getString("customerName"));
                 bill.setId(resultSet.getString("id"));
                 bill.setMoney(resultSet.getDouble("money"));
                 bills.add(bill);
@@ -287,47 +326,7 @@ public class DatabaseConnection {
             }
         }
         System.out.println("Total bills: " + nhanhvnBills.getNhanhvnBillList().size());
-        return filterBillsWithNoUnmatchedProducts(nhanhvnBills);
-    }
-
-    private NhanhvnBills filterBillsWithNoUnmatchedProducts(NhanhvnBills bills) {
-        NhanhvnBills filteredBills = new NhanhvnBills();
-        List<NhanhvnBill> billList = new ArrayList<>();
-        billList = bills.getNhanhvnBillList().stream()
-                .filter(e -> e.getProducts().stream()
-                        .allMatch(productDetail -> !productDetail.getFacebookId().isEmpty()))
-                .collect(Collectors.toList());
-        filteredBills.setNhanhvnBillList(billList);
-        return filteredBills;
-    }
-
-    public static void main(String[] args) throws SQLException, CsvRequiredFieldEmptyException,
-    IOException, CsvDataTypeMismatchException {
-    	DatabaseConnection db = new DatabaseConnection();
-//        List<NhanhvnBillProductDetail> bills = db.getBillDetailsFromDb();
-//        System.out.println(bills.size());
-//        bills.stream()
-//                .forEach(bill -> {
-//                    System.out.println(bill.getPrice());
-//                    System.out.println(bill.getId());
-//                    System.out.println(bill.getQuantity());
-//                    System.out.println(bill.getFacebookId().isEmpty()?"empty facebookId":bill.getFacebookId());
-//                    System.out.println(bill.getBillId());
-//                });
-        NhanhvnBills bills = db.getBillsFromDb();
-
-        System.out.println("Total bills: " + bills.getNhanhvnBillList().size());
-
-        NhanhvnBill myBill = new NhanhvnBill();
-        for(NhanhvnBill bill: bills.getNhanhvnBillList()) {
-            if (bill.getId().equals("70424912")) {
-                myBill = bill;
-                break;
-            }
-        }
-
-        System.out.println(myBill.getProducts().size());
-        System.out.println("List after being filtered: " + db.filterBillsWithNoUnmatchedProducts(bills).getNhanhvnBillList().size());
+        return nhanhvnBills;
     }
 }
 

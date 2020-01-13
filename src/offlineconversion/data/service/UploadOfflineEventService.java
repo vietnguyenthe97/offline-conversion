@@ -5,12 +5,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import nhanhvn.data.models.NhanhvnBill;
-import nhanhvn.rest.api.CustomResponseHandler;
+import nhanhvn.data.models.NhanhvnBillProductDetail;
 import nhanhvn.security.apistorage.ApiCredentials;
 import nhanhvn.security.apistorage.ApiHelper;
 import offlineconversion.data.models.ConversionData;
 import org.apache.http.*;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -30,9 +29,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class UploadOfflineEventData {
+public class UploadOfflineEventService {
     private List<NhanhvnBill> bills;
     private ApiCredentials apiCredentials;
     private CloseableHttpClient httpClient;
@@ -59,6 +59,10 @@ public class UploadOfflineEventData {
     private final String DATA = "data";
     private final String UPLOAD_TAG = "upload_tag";
 
+    public List<NhanhvnBill> getBills() {
+        return bills;
+    }
+
     private void initializeHttpRequest() {
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectionRequestTimeout(28800)
@@ -79,7 +83,12 @@ public class UploadOfflineEventData {
                 "Bearer " + apiCredentials.getFacebookDetails().getUserAccessToken()));
     }
 
-    private void initializeBills() throws SQLException {
+    private void addParam(String name, String value) {
+        Objects.requireNonNull(postParams);
+        postParams.add(new BasicNameValuePair(name, value));
+    }
+
+    public void initializeBills() throws SQLException {
         DatabaseConnection db = new DatabaseConnection();
         bills = db.getBillsFromDb().getNhanhvnBillList().stream()
                 .filter(bill -> {
@@ -87,6 +96,29 @@ public class UploadOfflineEventData {
                     return DataHelper.isDateWithin62DaysUntilToday(createdDateTime);
                 })
                 .collect(Collectors.toList());
+
+        bills = filterBillsWithNoUnmatchedProducts(bills);
+        System.out.println("Bill size: " + bills.size());
+    }
+
+    private List<NhanhvnBill> filterBillsWithNoUnmatchedProducts(List<NhanhvnBill> bills) {
+        List<NhanhvnBill> billList;
+        //filter all bills that have a product with id = 0
+        billList = bills.stream().filter(e -> e.getProducts().stream()
+                        .allMatch(productDetail -> !productDetail.getFacebookId().equals("0")))
+                .collect(Collectors.toList());
+
+        //filter all products that have id -1
+        billList.stream().forEach(bill -> {
+            List<NhanhvnBillProductDetail> products = bill.getProducts().stream()
+                    .filter(product -> !product.getFacebookId().equals("-1"))
+                    .collect(Collectors.toList());
+            bill.setProducts(products);
+        });
+
+        //filter all bills that have no product
+        billList = billList.stream().filter(bill -> bill.getProducts().size() > 0).collect(Collectors.toList());
+        return billList;
     }
 
     private JsonArray prepareHttpPostParameters(ConversionData data) {
@@ -113,7 +145,7 @@ public class UploadOfflineEventData {
         return finalArray;
     }
 
-    private void uploadBill(JsonArray dataJsonArray, String id) throws IOException {
+    private void uploadBill(JsonArray dataJsonArray, NhanhvnBill bill) throws IOException, SQLException {
         String version = apiCredentials.getFacebookDetails().getVersion();
         String offlineEventSetId = apiCredentials.getFacebookDetails().getOfflineEventSetId();
         final String url = "https://graph.facebook.com/" + version + "/" + offlineEventSetId + "/events";
@@ -128,9 +160,7 @@ public class UploadOfflineEventData {
 
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(postParams, Consts.UTF_8);
         httpPost.setEntity(entity);
-
-        ResponseHandler<String> responseHandler = CustomResponseHandler.createResponseHandler();
-        HttpResponse response = null;
+        HttpResponse response;
 
         final int MAX_RETRY = 10;
         int retry = 0;
@@ -150,23 +180,39 @@ public class UploadOfflineEventData {
                 }
             }
         }
+
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter("resources/uploaded_bills.txt", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+
+        int count = 0;
         if (response.getStatusLine().getStatusCode() == 200) {
-            System.out.println("Successfully uploaded bill: " + id);
+            System.out.println("Successfully uploaded bill: " + bill.getId());
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            bill.setFacebookStatus(true);
+            System.out.println("Bill upload status: " + bill.getFacebookStatus());
+            databaseConnection.updateBillUploadStatus(bill);
+            printWriter.printf("Bill uploaded: %s, bill upload facebook status: %s\n", bill.getId(), bill.getFacebookStatus());
             System.out.println(response.getEntity());
             EntityUtils.consumeQuietly(response.getEntity());
         } else {
             System.out.println("Unexpected error: " + response.getStatusLine().getStatusCode());
         }
-        System.out.println("Total bills: " + bills.size());
+        printWriter.close();
     }
 
     public void uploadAllBills() throws SQLException {
+        AtomicInteger alreadyUploadedBills = new AtomicInteger();
         initializeHttpRequest();
         System.out.println("Filtering bills within previous 62 days (some bills may expire)");
         initializeBills();
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter("resources/filterbill.txt");
+            fileWriter = new FileWriter("resources/filtered_bill.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -180,23 +226,45 @@ public class UploadOfflineEventData {
                 dataConverter.prepareSendingData(bill);
                 ConversionData data = dataConverter.getConversionData();
                 JsonArray dataArray = prepareHttpPostParameters(data);
-                //uploadBill(dataArray, bill.getId());
+                DatabaseConnection databaseConnection = new DatabaseConnection();
+                NhanhvnBill inspectBill = databaseConnection.getBillById(bill.getId());
+
+                if (inspectBill.getFacebookStatus()) {
+                    alreadyUploadedBills.getAndIncrement();
+                    System.out.println("Already updated bill: " + alreadyUploadedBills.get());
+                    System.out.println("Bill has been updated!");
+                    System.out.println("Upload event status: " + inspectBill.getFacebookStatus());
+                } else {
+                    uploadBill(dataArray, bill);
+                }
+
                 System.out.println("Bill id is: "  + bill.getId());
-                printWriter.printf("Bill id: %s, created: %s, money: %s, mobile: %s\n", bill.getId(), bill.getCreatedDateTime(), bill.getMoney(), bill.getCustomerMobile());
-            } catch (NoSuchAlgorithmException e) {
+                printWriter.printf("Bill id: %s\n", bill.getId());
+                printWriter.printf("Created date: %s\n", bill.getCreatedDateTime());
+                printWriter.printf("Customer mobile: %s\n", bill.getCustomerMobile());
+                printWriter.printf("Bill price: %s\n", bill.getMoney());
+                printWriter.printf("Product in bill : %s\n", bill.getProducts().size());
+                printWriter.printf("Customer name: %s\n======\n", bill.getCustomerName());
+                bill.getProducts().stream().forEach(productDetail -> {
+                    printWriter.printf("Product quantity: %s\n", productDetail.getQuantity());
+                    printWriter.printf("Product bill id: %s\n", productDetail.getBillId());
+                    printWriter.printf("Product facebook id: %s\n", productDetail.getFacebookId());
+                    printWriter.printf("Product price: %s\n", productDetail.getPrice());
+                    printWriter.printf("Product id: %s\n======\n", productDetail.getId());
+                });
+                printWriter.printf("----------------------------------------------\n\n");
+                printWriter.flush();
+            } catch (NoSuchAlgorithmException | SQLException | IOException e) {
                 e.printStackTrace();
             }
         });
+        printWriter.printf("Bills already uploaded: " + alreadyUploadedBills.get());
+        printWriter.printf("New bills uploaded: " + (bills.size() - alreadyUploadedBills.get()));
         printWriter.close();
     }
 
-    private void addParam(String name, String value) {
-        Objects.requireNonNull(postParams);
-        postParams.add(new BasicNameValuePair(name, value));
-    }
-
     public static void main(String[] args) throws IOException, SQLException {
-        UploadOfflineEventData data = new UploadOfflineEventData();
+        UploadOfflineEventService data = new UploadOfflineEventService();
         data.uploadAllBills();
     }
 

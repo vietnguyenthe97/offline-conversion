@@ -1,23 +1,24 @@
 package runnable;
 
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import gomhangvn.data.service.GomhangProductService;
 import nhanhvn.data.services.BillDataService;
 import nhanhvn.data.services.ProductDataService;
 import nhanhvn.data.services.TransactionService;
+import offlineconversion.data.service.UploadOfflineEventService;
 import shared.persistence.ServiceFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-
 public class ConsoleIO {
     private BillDataService billDataService;
     private ProductDataService productDataService;
     private GomhangProductService gomhangProductService;
     private TransactionService transactionService;
+    private UploadOfflineEventService uploadOfflineEventService;
     private final String lineBreak = "\n";
     private final String menu = "******Service options******" + lineBreak +
             "0. Thoát chương trình" + lineBreak +
@@ -32,6 +33,7 @@ public class ConsoleIO {
         productDataService =  (ProductDataService) ServiceFactory.createNhanhvnService("product");
         transactionService = (TransactionService) ServiceFactory.createNhanhvnService("transaction");
         gomhangProductService = ServiceFactory.createGomhangService("product");
+        uploadOfflineEventService = ServiceFactory.createUploadOfflineEventService("upload");
     }
 
     private void printMenu() {

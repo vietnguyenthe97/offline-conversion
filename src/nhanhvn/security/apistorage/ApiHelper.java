@@ -19,15 +19,4 @@ public class ApiHelper {
 		}
 		return yamlLoader.load(input);
 	}
-
-	public static void main(String[] args) {
-//		ApiHelper a = new ApiHelper();
-//		ApiCredentials b = a.getApiCredentials();
-//		System.out.println(b.getFacebookDetails().getOfflineEventSetId());
-//		System.out.println(b.getFacebookDetails().getUserAccessToken());
-//		System.out.println(b.getFacebookDetails().getVersion());
-//		System.out.println(b.getApiDetails().getApiSecretKey());
-//		System.out.println(b.getApiDetails().getApiUserName());
-//		System.out.println(b.getApiDetails().getVersion());
-	}
 }

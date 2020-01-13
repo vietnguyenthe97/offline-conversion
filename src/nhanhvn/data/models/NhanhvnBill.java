@@ -17,6 +17,15 @@ public class NhanhvnBill {
 	@Expose
 	private String createdDateTime;
     private List<NhanhvnBillProductDetail> products = new ArrayList<>();
+    private boolean facebookStatus = false;
+
+    public boolean getFacebookStatus() {
+        return facebookStatus;
+    }
+
+    public void setFacebookStatus(boolean facebookStatus) {
+        this.facebookStatus = facebookStatus;
+    }
 
     public String getId() {
         return id;
