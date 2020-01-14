@@ -26,7 +26,8 @@ public class ConsoleIO {
             "2. Lấy và lưu dữ liệu hóa đơn từ nhanhvn" + lineBreak +
             "3. Tải và lưu dữ liệu sản phẩm từ gomhangvn" + lineBreak +
             "4. Xuất dữ liệu sản phẩm từ nhanhvn sang csv file" + lineBreak +
-            "5. Cập nhật facebookId từ csv file";
+            "5. Cập nhật facebookId từ csv file" + lineBreak +
+            "6. Tải dữ liệu offline lên facebook";
 
     private void initializeServices() {
         billDataService = (BillDataService) ServiceFactory.createNhanhvnService("bill");
@@ -101,6 +102,12 @@ public class ConsoleIO {
                 	transactionService.updateFacebookId();
                 	printDone();
                 	break;
+                }
+
+                case 6: {
+                    uploadOfflineEventService.uploadAllBills();
+                    printDone();
+                    break;
                 }
 
                 default: {
