@@ -21,13 +21,13 @@ public class ConsoleIO {
     private UploadOfflineEventService uploadOfflineEventService;
     private final String lineBreak = "\n";
     private final String menu = "******Service options******" + lineBreak +
-            "0. Thoát chương trình" + lineBreak +
-            "1. Lấy và lưu dữ liệu sản phẩm từ nhanhvn" + lineBreak +
-            "2. Lấy và lưu dữ liệu hóa đơn từ nhanhvn" + lineBreak +
-            "3. Tải và lưu dữ liệu sản phẩm từ gomhangvn" + lineBreak +
-            "4. Xuất dữ liệu sản phẩm từ nhanhvn sang csv file" + lineBreak +
-            "5. Cập nhật facebookId từ csv file" + lineBreak +
-            "6. Tải dữ liệu offline lên facebook";
+            "0. Thoat chuong trinh" + lineBreak +
+            "1. Lay va luu du lieu san pham tu nhanhvn" + lineBreak +
+            "2. Lay va luu du lieu hoa don tu nhanhvn" + lineBreak +
+            "3. Tai va luu du lieu cua san pham tu gomhangvn" + lineBreak +
+            "4. Xuat du lieu san pham tu nhanhvn sang csv file" + lineBreak +
+            "5. Cap nhat facebookId tu csv file" + lineBreak +
+            "6. Tai du lieu offline len facebook";
 
     private void initializeServices() {
         billDataService = (BillDataService) ServiceFactory.createNhanhvnService("bill");
