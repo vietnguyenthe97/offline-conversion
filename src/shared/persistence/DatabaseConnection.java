@@ -2,6 +2,8 @@ package shared.persistence;
 
 import gomhangvn.data.models.GomhangProduct;
 import nhanhvn.data.models.*;
+import nhanhvn.security.apistorage.ApiHelper;
+import nhanhvn.security.apistorage.DatabaseCredentials;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,14 +11,6 @@ import java.util.List;
 
 public class DatabaseConnection {
     private Connection connection = null;
-
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
 
     private Connection makeDbConnection() {
         try {
@@ -26,7 +20,10 @@ public class DatabaseConnection {
         }
 
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/nhanhvnstorage", "root", "langthanG*1992");
+            DatabaseCredentials databaseCredentials = ApiHelper.getApiCredentials().getDatabaseDetails();
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:" + databaseCredentials.getPort() + "/nhanhvnstorage",
+                    databaseCredentials.getUsername(),
+                    databaseCredentials.getPassword());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,6 +69,7 @@ public class DatabaseConnection {
                 preparedStatement.setString(1,  id);
                 preparedStatement.setString(2, name);
                 totalChanges = preparedStatement.executeUpdate();
+                System.out.println("Persisting product id: " + id + ", name: " + name);
             }
             System.out.println("================== Finished persisting gomhangvnproducts: " + products.size() + " ==================");
             System.out.println("================== Total Changes: " + totalChanges + "==================");

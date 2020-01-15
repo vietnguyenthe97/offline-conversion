@@ -13,7 +13,7 @@ public class ApiHelper {
 		Yaml yamlLoader = new Yaml(new Constructor(ApiCredentials.class));
 		InputStream input = null;
 		try {
-			input = new FileInputStream(new File("resources/ApiConfigurations/api_information.yaml"));
+			input = new FileInputStream(new File("resources/Configurations/configurations.yaml"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

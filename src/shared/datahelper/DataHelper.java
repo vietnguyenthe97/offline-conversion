@@ -2,22 +2,18 @@ package shared.datahelper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class to handle strings and json objects like conversion methods, hash generator, etc.
@@ -148,76 +144,5 @@ public class DataHelper {
 		return "84" + phoneNumber
 			.replaceFirst("^0+(?!$)", "")
 			.replaceAll("[^0-9]", "");
-	}
-
-
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		Calendar currentDateCalendar = Calendar.getInstance();
-		currentDateCalendar.add(Calendar.MONTH, 0);
-		System.out.println(Calendar.getInstance().getTime());
-
-		String date = "2019-11-11 19:37:59";
-		String date1 = "2019-12-21 19:02:00";
-		String date2 = "2020-01-01 00:00:00";
-		String date3 = "2020-01-12 18:49:55";
-		Date converted = DataHelper.parseDateTimeString(date);
-		Date converted1 = DataHelper.parseDateTimeString(date1);
-		Date converted2 = DataHelper.parseDateTimeString(date2);
-		Date converted3 = DataHelper.parseDateTimeString(date3);
-		System.out.println("?: " + converted);
-
-		System.out.println("Date is: " + DataHelper.isDateWithin62DaysUntilToday(converted));
-		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted1));
-		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted2));
-		System.out.println(DataHelper.isDateWithin62DaysUntilToday(converted3));
-
-		System.out.println(converted.getTime()/1000);
-
-		System.out.println(DataHelper.sha256Hash("mary@example.com"));
-		System.out.println("0903637792");
-		System.out.println(DataHelper.formatMobileNumber("0903637792"));
-		System.out.println(DataHelper.sha256Hash("0903637792"));
-
-		String dateToUnix = "2019-11-06 08:22:06";
-		Date convertedDateToUnix = DataHelper.parseDateTimeString(dateToUnix);
-		System.out.println(DataHelper.convertDateToUnixTimeStampString(convertedDateToUnix));
-
-		Gson gson = new Gson();
-
-		try (Reader reader = new FileReader("d:\\events.json")) {
-
-			// Convert JSON File to Java Object
-			JsonParser parser = new JsonParser();
-			JsonArray array = parser.parse(reader).getAsJsonObject().get("data").getAsJsonArray();
-			List<TemporaryFix> events = new ArrayList<>();
-			Type listType = new TypeToken<List<TemporaryFix>>() {}.getType();
-			events = gson.fromJson(array, listType);
-			events = events.stream().filter(event -> event.getCount() > 0 && event.getEvent().equals("Purchase")).collect(Collectors.toList());
-			System.out.println(events.size());
-			TemporaryFix max = new TemporaryFix();
-
-			int count = 0;
-
-			for (int i=0; i<events.size(); i++) {
-				System.out.println("=====================================");
-				System.out.println("Event counts: " + events.get(i).getCount());
-				System.out.println("Event name: " + events.get(i).getEvent());
-				System.out.println("Event time: " + events.get(i).getTime());
-				System.out.println("=====================================");
-				count += events.get(i).getCount();
-			}
-
-			max = events.get(0);
-			for (int i=1; i<events.size(); i++) {
-				if (events.get(i).getTime() > max.getTime()) {
-					max = events.get(i);
-				}
-			}
-
-			System.out.println("MAX: " + max.getTime());
-			System.out.println("Total bills: " + count);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

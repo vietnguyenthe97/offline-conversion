@@ -181,28 +181,17 @@ public class UploadOfflineEventService {
             }
         }
 
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter("resources/uploaded_bills.txt", true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PrintWriter printWriter = new PrintWriter(fileWriter);
-
-        int count = 0;
         if (response.getStatusLine().getStatusCode() == 200) {
             System.out.println("Successfully uploaded bill: " + bill.getId());
             DatabaseConnection databaseConnection = new DatabaseConnection();
             bill.setFacebookStatus(true);
             System.out.println("Bill upload status: " + bill.getFacebookStatus());
             databaseConnection.updateBillUploadStatus(bill);
-            printWriter.printf("Bill uploaded: %s, bill upload facebook status: %s\n", bill.getId(), bill.getFacebookStatus());
             System.out.println(response.getEntity());
             EntityUtils.consumeQuietly(response.getEntity());
         } else {
             System.out.println("Unexpected error: " + response.getStatusLine().getStatusCode());
         }
-        printWriter.close();
     }
 
     public void uploadAllBills() throws SQLException {
@@ -210,15 +199,24 @@ public class UploadOfflineEventService {
         initializeHttpRequest();
         System.out.println("Filtering bills within previous 62 days (some bills may expire)");
         initializeBills();
-        FileWriter fileWriter = null;
+
+        FileWriter uploadFileWriter = null;
+        FileWriter uploadBeforeFileWriter = null;
+        FileWriter totalFilteredBillsFileWriter = null;
+
         try {
-            fileWriter = new FileWriter("resources/filtered_bill.txt");
+            uploadFileWriter = new FileWriter("resources/uploaded_bills.txt");
+            uploadBeforeFileWriter = new FileWriter("resources/uploaded_before_bills.txt");
+            totalFilteredBillsFileWriter = new FileWriter("resources/filtered_bill.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        PrintWriter printWriter = new PrintWriter(fileWriter);
+        PrintWriter uploadPrintWriter = new PrintWriter(uploadFileWriter);
+        PrintWriter uploadBeforePrintWriter = new PrintWriter(uploadBeforeFileWriter);
+        PrintWriter totalFilteredBillsPrintWriter = new PrintWriter(totalFilteredBillsFileWriter);
+
         System.out.println("Total bills: " + bills.size());
-        printWriter.printf("Total bills filtered: %s\n" , bills.size());
+        totalFilteredBillsPrintWriter.printf("Total bills filtered: %s\n" , bills.size());
 
         bills.stream().forEach(bill -> {
             DataConverter dataConverter = new DataConverter();
@@ -234,38 +232,47 @@ public class UploadOfflineEventService {
                     System.out.println("Already updated bill: " + alreadyUploadedBills.get());
                     System.out.println("Bill has been updated!");
                     System.out.println("Upload event status: " + inspectBill.getFacebookStatus());
+                    uploadBeforePrintWriter.printf("Bill already uploaded: %s, bill upload facebook status: %s\n",
+                            inspectBill.getId(),
+                            inspectBill.getFacebookStatus());
+                    uploadBeforePrintWriter.flush();
                 } else {
                     uploadBill(dataArray, bill);
+                    uploadPrintWriter.printf("Bill has just been uploaded: %s, bill upload facebook status before: %s\n",
+                            bill.getId(),
+                            inspectBill.getFacebookStatus());
+                    uploadPrintWriter.flush();
                 }
 
                 System.out.println("Bill id is: "  + bill.getId());
-                printWriter.printf("Bill id: %s\n", bill.getId());
-                printWriter.printf("Created date: %s\n", bill.getCreatedDateTime());
-                printWriter.printf("Customer mobile: %s\n", bill.getCustomerMobile());
-                printWriter.printf("Bill price: %s\n", bill.getMoney());
-                printWriter.printf("Product in bill : %s\n", bill.getProducts().size());
-                printWriter.printf("Customer name: %s\n======\n", bill.getCustomerName());
+                totalFilteredBillsPrintWriter.printf("Bill id: %s\n", bill.getId());
+                totalFilteredBillsPrintWriter.printf("Created date: %s\n", bill.getCreatedDateTime());
+                totalFilteredBillsPrintWriter.printf("Customer mobile: %s\n", bill.getCustomerMobile());
+                totalFilteredBillsPrintWriter.printf("Bill price: %s\n", bill.getMoney());
+                totalFilteredBillsPrintWriter.printf("Product in bill : %s\n", bill.getProducts().size());
+                totalFilteredBillsPrintWriter.printf("Customer name: %s\n======\n", bill.getCustomerName());
                 bill.getProducts().stream().forEach(productDetail -> {
-                    printWriter.printf("Product quantity: %s\n", productDetail.getQuantity());
-                    printWriter.printf("Product bill id: %s\n", productDetail.getBillId());
-                    printWriter.printf("Product facebook id: %s\n", productDetail.getFacebookId());
-                    printWriter.printf("Product price: %s\n", productDetail.getPrice());
-                    printWriter.printf("Product id: %s\n======\n", productDetail.getId());
+                    totalFilteredBillsPrintWriter.printf("Product quantity: %s\n", productDetail.getQuantity());
+                    totalFilteredBillsPrintWriter.printf("Product bill id: %s\n", productDetail.getBillId());
+                    totalFilteredBillsPrintWriter.printf("Product facebook id: %s\n", productDetail.getFacebookId());
+                    totalFilteredBillsPrintWriter.printf("Product price: %s\n", productDetail.getPrice());
+                    totalFilteredBillsPrintWriter.printf("Product id: %s\n======\n", productDetail.getId());
                 });
-                printWriter.printf("----------------------------------------------\n\n");
-                printWriter.flush();
+                totalFilteredBillsPrintWriter.printf("----------------------------------------------\n\n");
+                totalFilteredBillsPrintWriter.flush();
             } catch (NoSuchAlgorithmException | SQLException | IOException e) {
                 e.printStackTrace();
             }
         });
-        printWriter.printf("Bills already uploaded: " + alreadyUploadedBills.get());
-        printWriter.printf("New bills uploaded: " + (bills.size() - alreadyUploadedBills.get()));
-        printWriter.close();
-    }
+        totalFilteredBillsPrintWriter.printf("Bills already uploaded: %s\n", alreadyUploadedBills.get());
+        totalFilteredBillsPrintWriter.printf("New bills uploaded: %s\n", bills.size() - alreadyUploadedBills.get());
+        totalFilteredBillsPrintWriter.printf("Total bills uploaded before: %s", alreadyUploadedBills.get());
+        totalFilteredBillsPrintWriter.close();
 
-    public static void main(String[] args) throws IOException, SQLException {
-        UploadOfflineEventService data = new UploadOfflineEventService();
-        data.uploadAllBills();
-    }
+        uploadPrintWriter.printf("New bills uploaded: %s", bills.size() - alreadyUploadedBills.get());
+        uploadPrintWriter.close();
 
+        uploadBeforePrintWriter.printf("Total bills uploaded before: %s", alreadyUploadedBills.get());
+        uploadBeforePrintWriter.close();
+    }
 }
