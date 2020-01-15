@@ -69,6 +69,7 @@ public class DatabaseConnection {
             for(GomhangProduct productElement: products) {
                 String id = productElement.getId();
                 String name = productElement.getName();
+                preparedStatement.setString(1,  id);
                 preparedStatement.setString(2, name);
                 totalChanges = preparedStatement.executeUpdate();
             }
