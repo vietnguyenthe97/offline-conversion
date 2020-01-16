@@ -39,15 +39,15 @@ public class ConsoleIO {
 
     private void printMenu() {
         System.out.println(menu);
-        System.out.print("Please choose an option: ");
+        System.out.print("Chon dich vu: ");
     }
 
     private void printDone() {
-        System.out.println("Service finished, returning to menu.");
+        System.out.println("Dich vu hoan thanh, tro ve menu chinh...");
     }
 
     private void printUnsupportedService() {
-        System.out.println("Current service is not supported, please try again!");
+        System.out.println("Dich vu hien tai khong ho tro, xin thu lai!");
     }
 
     public void consoleApplication() throws IOException, SQLException, 
@@ -63,14 +63,14 @@ public class ConsoleIO {
                     break;
                 } else {
                     input.nextLine();
-                    System.out.println("Invalid input, make sure to enter integer number only");
-                    System.out.print("Please choose another option: ");
+                    System.out.println("Input sai format");
+                    System.out.print("Xin hay thu lai: ");
                 }
             }
 
             switch(option) {
                 case 0: {
-                    System.out.println("Exit the program...");
+                    System.out.println("Thoat chuong trinh...");
                     break;
                 }
 
@@ -99,8 +99,25 @@ public class ConsoleIO {
                 }
                 
                 case 5: {
-                	transactionService.updateFacebookId();
-                	printDone();
+                    while (true) {
+                        System.out.println("Xin dam bao ban da co file: " + transactionService.getAbsoluteImportPath());
+                        System.out.print("Tien hanh mapping? (y/n): ");
+                        Scanner keyInput = new Scanner(System.in);
+                        String keyPress = keyInput.nextLine();
+                        if (keyPress.equalsIgnoreCase("Y") || keyPress.equalsIgnoreCase("YES")) {
+                            System.out.println("Bat dau thuc hien mapping...");
+                            transactionService.updateFacebookId();
+                            break;
+                        } else {
+                                if (keyPress.equalsIgnoreCase("N") || keyPress.equalsIgnoreCase("NO")) {
+                                    System.out.println("Ban da tu choi mapping.");
+                                    break;
+                                } else {
+                                    System.out.println("Sai format, xin nhap yes/y de thuc hien mapping, hoac no/n de thoat dich vu.");
+                                }
+                        }
+                    }
+                    printDone();
                 	break;
                 }
 

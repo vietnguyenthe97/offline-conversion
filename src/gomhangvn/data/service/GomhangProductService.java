@@ -24,7 +24,7 @@ import java.util.List;
 
 public class GomhangProductService {
 	private GomhangProducts gomhangProducts = new GomhangProducts();
-	private final String fileName = "gomhangProduct.csv";
+	private final String fileName = "resources/gomhang_products.csv";
 
 	public GomhangProducts getGomhangProducts() {
 		return gomhangProducts;

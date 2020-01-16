@@ -48,8 +48,6 @@ public class DatabaseConnection {
                 preparedStatement.setString(3, parentId);
                 totalChanges = preparedStatement.executeUpdate();
             }
-            System.out.println("================== Finished persisting nhanhvnproducts: " + products.size() + " ==================");
-            System.out.println("================== Total Changes: " + totalChanges + "==================");
             connection.close();
         }
     }
@@ -71,8 +69,6 @@ public class DatabaseConnection {
                 totalChanges = preparedStatement.executeUpdate();
                 System.out.println("Persisting product id: " + id + ", name: " + name);
             }
-            System.out.println("================== Finished persisting gomhangvnproducts: " + products.size() + " ==================");
-            System.out.println("================== Total Changes: " + totalChanges + "==================");
             connection.close();
         }
     }
@@ -113,14 +109,10 @@ public class DatabaseConnection {
                 status = preparedStatement.executeUpdate();
                 totalProducts += billElement.getProducts().size();
             }
-            System.out.println("Total products in the bills:" + totalProducts);
-            System.out.println("================== Finished persisting bills: " + bills.size() + " ==================");
-            System.out.println("================== Status: " + status + " ==================");
             connection.close();
             for(NhanhvnBill billElement: bills) {
             	persistNhanhvnBillProductDetails(billElement);
             }
-            System.out.println("Finished persisting bill details: " + totalProducts);
         }
     }
 
@@ -147,8 +139,6 @@ public class DatabaseConnection {
                 preparedStatement.setString(4, productId);
                 totalChanges = preparedStatement.executeUpdate();
             }
-            System.out.println("================== Finished persisting bill details: " + bill.getProducts().size() + " ==================");
-            System.out.println("================== Total Changes: " + totalChanges + " ==================");
             connection.close();
         }
     }
@@ -159,15 +149,11 @@ public class DatabaseConnection {
             String facebookIdFromCsv = idConversionObject.getFacebookId();
             String idNhanhFromCsv = idConversionObject.getIdNhanh();
             String parentIdFromCsv = idConversionObject.getParentId();
-            int parentIdValue, facebookIdValue, status = 0;
+            int parentIdValue, status = 0;
             if(!parentIdFromCsv.isEmpty()) {
                 try {
                     parentIdValue = Integer.parseInt(parentIdFromCsv);
                     if (parentIdValue < 0 && !facebookIdFromCsv.isEmpty()) {
-                        facebookIdValue = Integer.parseInt(facebookIdFromCsv);
-                        if (facebookIdValue < 0) {
-                            facebookIdValue = -1;
-                        }
                         String sqlQuery = "UPDATE nhanhvn_product_list" +
                                 " SET facebookId = ?" +
                                 " WHERE idNhanh = ?" +
@@ -183,8 +169,8 @@ public class DatabaseConnection {
                 }
             }
             connection.close();
-            System.out.println("================== Finished updating facebookId for nhanhId: " + idNhanhFromCsv);
-            System.out.println("Update status: " + status);
+            System.out.println("facebookid: " + facebookIdFromCsv + ", nhanhId: " + idNhanhFromCsv + "" +
+                    ", total products mapped: " + status);
         }
     }
 
@@ -300,7 +286,9 @@ public class DatabaseConnection {
         connection = makeDbConnection();
         if (connection != null) {
             Statement st = connection.createStatement();
-            ResultSet resultSet = st.executeQuery("SELECT * FROM nhanhvn_bills WHERE customerMobile != ''");
+            ResultSet resultSet = st.executeQuery("SELECT * FROM nhanhvn_bills WHERE customerMobile != '' " +
+                    "AND facebookStatus = 0 " +
+                    "AND createdDateTime > DATE(NOW()) - INTERVAL 62 DAY;");
             while(resultSet.next()) {
                 NhanhvnBill  bill = new NhanhvnBill();
                 bill.setCreatedDateTime(resultSet.getTimestamp("createdDateTime").toString());
@@ -308,6 +296,7 @@ public class DatabaseConnection {
                 bill.setCustomerName(resultSet.getString("customerName"));
                 bill.setId(resultSet.getString("id"));
                 bill.setMoney(resultSet.getDouble("money"));
+                bill.setFacebookStatus(resultSet.getBoolean("facebookStatus"));
                 bills.add(bill);
             }
         }
@@ -319,12 +308,10 @@ public class DatabaseConnection {
                 for (NhanhvnBillProductDetail billDetail: nhanhvnBillProductDetails) {
                     if (billDetail.getBillId().equals(bill.getId())) {
                         bill.getProducts().add(new NhanhvnBillProductDetail(billDetail));
-                        System.out.println("Add product " + billDetail.getId() + " to bill " + bill.getId());
                     }
                 }
             }
         }
-        System.out.println("Total bills: " + nhanhvnBills.getNhanhvnBillList().size());
         return nhanhvnBills;
     }
 }

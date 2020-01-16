@@ -12,10 +12,7 @@ import nhanhvn.data.models.NhanhvnProduct;
 import nhanhvn.data.models.NhanhvnProducts;
 import shared.persistence.DatabaseConnection;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -25,7 +22,12 @@ public class TransactionService extends AbstractService {
 	private final String PRODUCT_EXPORT_PATH = "resources/exported_product_list.csv";
 	private final String PRODUCT_IMPORT_PATH = "resources/facebookid_mapping_sheet.csv";
 	private DatabaseConnection databaseConnection = new DatabaseConnection();
-	
+
+	public String getAbsoluteImportPath() {
+		File file = new File(PRODUCT_IMPORT_PATH);
+		return file.getAbsolutePath();
+	}
+
 	public void exportNhanhvnProducts() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, SQLException {
 		NhanhvnProducts nhanhvnProducts = databaseConnection.getNhanhvnParentProductsFromDb();
 		
@@ -42,18 +44,18 @@ public class TransactionService extends AbstractService {
         
 		String headerRecord = "\"idNhanh\",\"parentId\",\"productName\",\"facebookId\"\n";
 		writer.write(headerRecord);
-		beanToCsv.write((nhanhvnProducts.getProductList()));	
-		System.out.println("File is exported in: " + file.getAbsolutePath());
+		beanToCsv.write((nhanhvnProducts.getProductList()));
+		System.out.println("File duoc export o duong dan: " + file.getAbsolutePath());
+		writer.close();
 	}
 	
     public void updateFacebookId() throws SQLException, IOException {
 		File file = new File(PRODUCT_IMPORT_PATH);
 		if (!file.exists()) {
-			System.out.println("File not found!");
+			System.out.println("Khong tim thay file o :" + file.getAbsolutePath() + ", ket thuc dich vu.");
 			return;
-		} 
-		
-        Reader reader = null;
+		}
+        Reader reader;
         reader = Files.newBufferedReader(Paths.get(file.getPath()));
 
         if(reader != null) {

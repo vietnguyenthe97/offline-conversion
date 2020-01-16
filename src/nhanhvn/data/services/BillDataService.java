@@ -65,35 +65,28 @@ public class BillDataService extends AbstractService {
         List<NhanhvnBillProductDetail> billDetails = null;
 
         String data = DataHelper.convertMapToJsonString(dataMap);
-        System.out.println(data);
         Gson billGson = new GsonBuilder()
         		.excludeFieldsWithoutExposeAnnotation()
                 .create();
         
         JsonObject jsonData = billData.dataPostRequest(data);
-        System.out.println(jsonData);
         JsonObject billJson = jsonData.get("data").getAsJsonObject().get("bill").getAsJsonObject();
-        System.out.println(billJson);
         if(billJson != null) {
             for (Map.Entry<String, JsonElement> entry : billJson.entrySet()) {
                 NhanhvnBill billElement = billGson.fromJson(entry.getValue(), NhanhvnBill.class);
                 JsonObject productJson = billJson.get(entry.getKey()).getAsJsonObject().get("products").getAsJsonObject();
                 for(Map.Entry<String, JsonElement> productEntry : productJson.entrySet()) {
                     billDetails = new ArrayList<>();
-                    System.out.println(productJson.entrySet());
                     Gson productGson = new GsonBuilder()
                             .excludeFieldsWithoutExposeAnnotation()
                             .create();
                     NhanhvnBillProductDetail productDetailElement =
                             productGson.fromJson(productEntry.getValue(), NhanhvnBillProductDetail.class);
-                    System.out.println(productDetailElement.getQuantity());
                     billDetails.add(productDetailElement);
                 }
 
                 if (billDetails != null) {
-                    System.out.println(">>>>>>>>>> Total products of bill: " + billDetails.size());
                     billElement.setProducts(billDetails);
-                    billDetails.stream().forEach(e -> System.out.println(e.getBillId()));
                 }
                 bills.add(billElement);
             }
@@ -105,13 +98,12 @@ public class BillDataService extends AbstractService {
                     this.nhanhvnBills.getNhanhvnBillList().add(billElement);
                 });
             }
-            System.out.println(">>>>>>>>>> Total products of page " + pageIndex + ": " + bills.size());
+            System.out.println("Total bills of page " + pageIndex + ": " + bills.size());
         }
     }
 
     public void getAndPersistAllBills() throws IOException, SQLException {
         String data = DataHelper.convertMapToJsonString(dataMap);
-        System.out.println(data);
         this.billData.dataPostRequest(data);
         
         int totalPages = this.billData.getTotalPages();
