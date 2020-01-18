@@ -231,33 +231,61 @@ public class DatabaseConnection {
         return bill;
     }
 
-    public NhanhvnProducts getNhanhvnParentProductsFromDb() throws SQLException {
-        NhanhvnProducts nhanhvnProducts = new NhanhvnProducts();
+    public NhanhvnExportProducts getNhanhvnParentProductsFromDb(boolean getFromAllBills) throws SQLException {
+        NhanhvnExportProducts nhanhvnExportProducts = new NhanhvnExportProducts();
         connection = makeDbConnection();
         if (connection != null) {
             Statement st = connection.createStatement();
-            ResultSet resultSet = st.executeQuery("SELECT * FROM  nhanhvn_product_list " +
-                    "WHERE (facebookId='-1' OR facebookId ='0') " +
-                    "AND parentId<0");
+            String sqlQuery = "SELECT nhanhvn_product_list.idNhanh, " +
+                    "nhanhvn_product_list.parentId, " +
+                    "nhanhvn_product_list.productName, " +
+                    "nhanhvn_product_list.facebookId, " +
+                    "c.quantity " +
+                    "FROM ( " +
+                        "SELECT parentId, COUNT(*) AS quantity " +
+                        "FROM (" +
+                            "SELECT productId " +
+                            "FROM nhanhvnstorage.nhanhvn_bill_details " +
+                            "WHERE billId IN ( " +
+                                "SELECT id " +
+                                "FROM nhanhvnstorage.nhanhvn_bills " +
+                                "WHERE createdDateTime > NOW() - INTERVAL 62 DAY" +
+                            ")" +
+                        ") a " +
+                    "INNER JOIN (" +
+                        "SELECT idNhanh, CASE WHEN parentId < 0 " +
+                                        "THEN idNhanh " +
+                                        "ELSE parentId END AS parentId " +
+                        "FROM nhanhvn_product_list" +
+                        ") b " +
+                    "ON a.productId = b.idNhanh " +
+                    "GROUP BY parentId " +
+                    "ORDER BY COUNT(*) DESC) c " +
+                    "LEFT JOIN nhanhvn_product_list " +
+                    "ON c.parentId = nhanhvn_product_list.idNhanh";
+            if (!getFromAllBills) {
+                sqlQuery += " WHERE nhanhvn_product_list.facebookId = 0 OR nhanhvn_product_list.facebookId = -1";
+            }
+;
+            ResultSet resultSet = st.executeQuery(sqlQuery);
             while (resultSet.next()) {
+                NhanhvnExportProduct nhanhvnExportProduct = new NhanhvnExportProduct();
                 String parentId = resultSet.getString("parentId");
+                String name = resultSet.getString("productName");
+                String idNhanh = resultSet.getString("idNhanh");
+                String facebookId = resultSet.getString("facebookId");
+                float quantity = resultSet.getFloat("quantity");
 
-                if(Integer.parseInt(parentId) < 0) {
-                    NhanhvnProduct nhanhvnProduct = new NhanhvnProduct();
-                    String name = resultSet.getString("productName");
-                    String idNhanh = resultSet.getString("idNhanh");
-                    String facebookId = resultSet.getString("facebookId");
-
-                    nhanhvnProduct.setName(name);
-                    nhanhvnProduct.setIdNhanh(idNhanh);
-                    nhanhvnProduct.setFacebookId(facebookId);
-                    nhanhvnProduct.setParentId(parentId);
-                    nhanhvnProducts.getProductList().add(nhanhvnProduct);
-                }
+                nhanhvnExportProduct.setName(name);
+                nhanhvnExportProduct.setIdNhanh(idNhanh);
+                nhanhvnExportProduct.setFacebookId(facebookId);
+                nhanhvnExportProduct.setParentId(parentId);
+                nhanhvnExportProduct.setTotalProductsSold(quantity);
+                nhanhvnExportProducts.getNhanhvnExportProductList().add(nhanhvnExportProduct);
             }
         }
         connection.close();
-        return nhanhvnProducts;
+        return nhanhvnExportProducts;
     }
 
     private List<NhanhvnBillProductDetail> getBillDetailsFromDb() throws SQLException {

@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class UploadOfflineEventService {
@@ -103,11 +102,13 @@ public class UploadOfflineEventService {
 
         PrintWriter billWriter = new PrintWriter(deletedBills);
         billWriter.printf("Bills within 62 days and has facebookStatus = 0 (not uploaded): %s\n", bills.size());
+        System.out.println("Bills within 62 days and has facebookStatus = 0 (not uploaded): " +  billList.size());
 
         for (NhanhvnBill bill: bills) {
             for (int i=0; i<bill.getProducts().size(); i++) {
                 if (bill.getProducts().get(i).getFacebookId().equals("0")) {
-                    billWriter.printf("Bill %s is removed because product has facebookid = 0\n", bill.getId());
+                    billWriter.printf("Bill %s is removed because product id %s has facebookid = 0\n", bill.getId(), bill.getProducts().get(i).getId());
+                    billWriter.flush();
                     break;
                 }
 
@@ -132,10 +133,12 @@ public class UploadOfflineEventService {
                 finalList.add(bill);
             } else {
                 billWriter.printf("Bill %s is removed because bill has no product\n", bill.getId());
+                billWriter.flush();
             }
         }
         billWriter.printf("Final bills after moving bills with no product: %s\n", finalList.size());
-
+        System.out.println("Final bills after moving bills with no product: " +  finalList.size());
+        billWriter.close();
         return finalList;
     }
 
@@ -210,7 +213,6 @@ public class UploadOfflineEventService {
     }
 
     public void uploadAllBills() throws SQLException {
-        AtomicInteger alreadyUploadedBills = new AtomicInteger();
         initializeHttpRequest();
         System.out.println("Filtering bills within previous 62 days (some bills may expire)");
         initializeBills();

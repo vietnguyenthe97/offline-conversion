@@ -27,7 +27,8 @@ public class ConsoleIO {
             "3. Tai va luu du lieu cua san pham tu gomhangvn" + lineBreak +
             "4. Xuat du lieu san pham tu nhanhvn sang csv file" + lineBreak +
             "5. Cap nhat facebookId tu csv file" + lineBreak +
-            "6. Tai du lieu offline len facebook";
+            "6. Tai du lieu offline len facebook" + lineBreak +
+            "7. Thuc hien auto lan luot cac buoc theo thu tu: 1 -> 2 -> 3 -> 6";
 
     private void initializeServices() {
         billDataService = (BillDataService) ServiceFactory.createNhanhvnService("bill");
@@ -93,7 +94,31 @@ public class ConsoleIO {
                 }
 
                 case 4: {
-                	transactionService.exportNhanhvnProducts();
+                    while (true) {
+                        System.out.println("Ban co 2 lua chon: ");
+                        System.out.println("1. Xuat san pham cha (parent products) co trong hoa don (bills) trong vong 62 ngay co facebookId < 0 ");
+                        System.out.println("2. Xuat tat ca san pham cha (parent products) co trong hoa don (bills) trong vong 62 ngay");
+                        System.out.print("Lua chon cua ban la? (1/2): ");
+                        Scanner keyInput = new Scanner(System.in);
+                        String keyPress = keyInput.nextLine();
+
+                        if (keyPress.equals("1")) {
+                            System.out.println("Ban chon phuong an 1...");
+                            transactionService.setGetFromAllBills(false);
+                            transactionService.exportNhanhvnProducts();
+                            break;
+                        }
+
+                        if (keyPress.equals("2")) {
+                            System.out.println("Ban chon phuong an 2...");
+                            transactionService.setGetFromAllBills(true);
+                            transactionService.exportNhanhvnProducts();
+                            break;
+                        }
+
+                        System.out.println("Lua chon khong ho tro, quay ve menu...");
+                        break;
+                    }
                     printDone();
                     break;
                 }
@@ -127,13 +152,23 @@ public class ConsoleIO {
                     break;
                 }
 
+                case 7: {
+                    productDataService.getAndPersistAllProducts();
+                    billDataService.getAndPersistAllBills();
+                    gomhangProductService.getAndPersistProductsFromCsvFile();
+                    transactionService.updateFacebookId();
+                    uploadOfflineEventService.uploadAllBills();
+                    printDone();
+                    break;
+                }
+
                 default: {
                     printUnsupportedService();
                     break;
                 }
             }
             input.nextLine();
-            System.out.print("\n\n");
+            System.out.println();4
         } while (option != 0);
         input.close();
     }
