@@ -28,7 +28,7 @@ public class ConsoleIO {
             "4. Xuat du lieu san pham tu nhanhvn sang csv file" + lineBreak +
             "5. Cap nhat facebookId tu csv file" + lineBreak +
             "6. Tai du lieu offline len facebook" + lineBreak +
-            "7. Thuc hien auto lan luot cac buoc theo thu tu: 1 -> 2 -> 3 -> 6";
+            "7. Thuc hien auto lan luot cac buoc theo thu tu: 1 -> 2 -> 3 -> 5 -> 6";
 
     private void initializeServices() {
         billDataService = (BillDataService) ServiceFactory.createNhanhvnService("bill");
@@ -168,7 +168,7 @@ public class ConsoleIO {
                 }
             }
             input.nextLine();
-            System.out.println();4
+            System.out.println();
         } while (option != 0);
         input.close();
     }

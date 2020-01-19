@@ -107,17 +107,19 @@ public class BillDataService extends AbstractService {
         this.billData.dataPostRequest(data);
         
         int totalPages = this.billData.getTotalPages();
+        int totalBills = 0;
         System.out.println("Total pages of bills: " + totalPages);
         for(int i=0; i<totalPages; i++) {
             System.out.println(">>>>>>>>>>>>>> Retrieving data from page " + (i+1) + " ...");
             getBills("" + (i+1));
 
             List<NhanhvnBill> bills =  this.nhanhvnBills.getNhanhvnBillList();
+            totalBills += this.nhanhvnBills.getNhanhvnBillList().size();
             System.out.println(">>>>>>>>>>>>>> Finished retrieving data from page " + (i+1));
             DatabaseConnection storingData = new DatabaseConnection();
             storingData.persistNhanhvnBills(bills);
             bills.clear();
         }
-        System.out.println("Total bills: " + this.nhanhvnBills.getNhanhvnBillList().size());
+        System.out.println("Total bills: " + totalBills);
     }
 }
