@@ -1,9 +1,27 @@
 package nhanhvn.security.apistorage;
 
 public class DatabaseCredentials {
+    private String host;
+    private String databaseName;
     private String username;
     private String password;
     private String port;
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
+    }
 
     public String getUsername() {
         return username;

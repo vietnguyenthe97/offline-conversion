@@ -21,9 +21,9 @@ public class DatabaseConnection {
 
         try {
             DatabaseCredentials databaseCredentials = ApiHelper.getApiCredentials().getDatabaseDetails();
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:" + databaseCredentials.getPort() + "/nhanhvnstorage",
-                    databaseCredentials.getUsername(),
-                    databaseCredentials.getPassword());
+            String url = "jdbc:mysql://" + databaseCredentials.getHost() + ":" + databaseCredentials.getPort() +
+                    "/" + databaseCredentials.getDatabaseName();
+            connection = DriverManager.getConnection(url, databaseCredentials.getUsername(), databaseCredentials.getPassword());
         } catch (SQLException e) {
             e.printStackTrace();
         }
